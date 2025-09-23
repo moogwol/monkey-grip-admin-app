@@ -1,0 +1,30 @@
+erDiagram
+    MEMBERS {
+        serial id PK "Auto-incrementing primary key"
+        varchar first_name "First name (100 chars max)"
+        varchar last_name "Last name (100 chars max)"
+        varchar email UK "Email address (255 chars max, unique)"
+        varchar phone "Phone number (20 chars max)"
+        date date_of_birth "Date of birth"
+        varchar belt_rank "Current belt: white, blue, purple, brown, black"
+        int stripes "Number of stripes on current belt (0-4)"
+        date last_promotion_date "Date of last belt promotion"
+        varchar payment_class "Payment type: evenings, mornings, both, coupon"
+        varchar payment_status "Status: paid, overdue, trial"
+        boolean active "Member status (active/inactive)"
+        timestamp created_at "Record creation timestamp"
+    }
+
+    CLASS_COUPONS {
+        serial id PK "Auto-incrementing primary key"
+        int member_id FK "Reference to member"
+        int total_classes "Total classes purchased (usually 10)"
+        int classes_remaining "Classes remaining to use"
+        date purchase_date "Date coupon was purchased"
+        date expiry_date "Coupon expiration date"
+        boolean active "Coupon is active/valid"
+        decimal amount_paid "Amount paid for coupon"
+        text notes "Coupon notes"
+    }
+
+    MEMBERS ||--o{ CLASS_COUPONS : "has"

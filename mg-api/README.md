@@ -1,13 +1,15 @@
-# Contacts API
+# Monkey Grip BJJ Club API
 
-A RESTful API for managing contacts built with Node.js, Express, and PostgreSQL.
+A RESTful API for managing BJJ club members and class coupons built with Node.js, Express, and PostgreSQL.
 
 ## Features
 
-- Full CRUD operations for contacts
+- Full CRUD operations for members and class coupons
 - Input validation and error handling
-- Search functionality
-- Favorite contacts toggle
+- Search functionality for members
+- Belt promotion tracking
+- Payment status management
+- Class coupon management
 - Health check endpoint
 - Security middleware (Helmet, CORS)
 - Dockerized for easy deployment
@@ -21,13 +23,22 @@ A RESTful API for managing contacts built with Node.js, Express, and PostgreSQL.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/contacts` | Get all contacts |
-| GET | `/contacts?search=term` | Search contacts |
-| GET | `/contacts/:id` | Get contact by ID |
-| POST | `/contacts` | Create new contact |
-| PUT | `/contacts/:id` | Update contact |
-| DELETE | `/contacts/:id` | Delete contact |
-| PATCH | `/contacts/:id/favorite` | Toggle favorite status |
+| GET | `/members` | Get all members |
+| GET | `/members?search=term` | Search members |
+| GET | `/members/:id` | Get member by ID |
+| POST | `/members` | Create new member |
+| PUT | `/members/:id` | Update member |
+| DELETE | `/members/:id` | Delete member |
+| PATCH | `/members/:id/promote` | Promote member belt |
+| PATCH | `/members/:id/payment` | Update payment status |
+| GET | `/members/stats` | Get member statistics |
+| GET | `/coupons` | Get all class coupons |
+| GET | `/coupons/:id` | Get coupon by ID |
+| GET | `/members/:id/coupons` | Get member's coupons |
+| POST | `/coupons` | Create new coupon |
+| PUT | `/coupons/:id` | Update coupon |
+| DELETE | `/coupons/:id` | Delete coupon |
+| PATCH | `/coupons/:id/use` | Use a class from coupon |
 
 ### Health Check
 | Method | Endpoint | Description |

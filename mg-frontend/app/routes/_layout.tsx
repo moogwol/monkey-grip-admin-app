@@ -16,34 +16,35 @@ import type { Route } from "../+types/root";
 
 import appStylesHref from "../app.css?url";
 
-import { getContacts, createEmptyContact } from "../data"
+import { getMembers, createEmptyMember } from "../data"
 
-// Loader function to fetch contacts data
+// Loader function to fetch members data
 export async function loader({ request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
-    const contacts = await getContacts(q);
-    return { contacts, q };
+    const members = await getMembers(q);
+    return { members, q };
 }
 
-// Action function to handle form submissions (create contact)
+// Action function to handle form submissions (create member)
 export async function action({ request }: Route.ActionArgs) {
-    const contact = await createEmptyContact();
-    return redirect(`/contacts/${contact.id}/edit`);
+    const member = await createEmptyMember();
+    return redirect(`/members/${member.id}/edit`);
 }
 
 
 
 
-type Contact = {
+type Member = {
     id: string;
-    first: string;
-    last: string;
-    favorite: boolean;
+    first_name: string;
+    last_name: string;
+    belt_rank: string;
+    payment_status: string;
 };
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
-    const { contacts, q }: { contacts: Contact[]; q: string | null } = loaderData ?? { contacts: [], q: null };
+    const { members, q }: { members: Member[]; q: string | null } = loaderData ?? { members: [], q: null };
 
     const navigation = useNavigation();
     const submit = useSubmit();
@@ -62,7 +63,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         <>
             <div id="sidebar">
                 <h1>
-                    <Link to="/about">React Router</Link>
+                    <Link to="/about">BJJ Club Manager</Link>
                 </h1>
                 <div>
                     <Form
@@ -73,12 +74,12 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                         }
                     >
                         <input
-                            aria-label="Search contacts"
+                            aria-label="Search members"
                             className={searching ? "loading" : ""}
                             defaultValue={q || ""}
                             id="q"
                             name="q"
-                            placeholder="Search"
+                            placeholder="Search members"
                             type="search"
                         />
                         <div
@@ -88,14 +89,14 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                         />
                     </Form>
                     <Form method="post">
-                        <button type="submit">New</button>
+                        <button type="submit">New Member</button>
                     </Form>
                 </div>
                 <nav>
-                    {contacts.length ? (
+                    {members.length ? (
                         <ul>
-                            {contacts.map((contact) => (
-                                <li key={contact.id}>
+                            {members.map((member) => (
+                                <li key={member.id}>
                                     <NavLink
                                         className={({ isActive, isPending }) =>
                                             isActive
@@ -105,16 +106,19 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                                                     : ""
                                         }
 
-                                        to={`contacts/${contact.id}`}>
-                                        {contact.first || contact.last ? (
+                                        to={`members/${member.id}`}>
+                                        {member.first_name || member.last_name ? (
                                             <>
-                                                {contact.first} {contact.last}
+                                                {member.first_name} {member.last_name}
+                                                <span className="belt-rank">
+                                                    ({member.belt_rank})
+                                                </span>
                                             </>
                                         ) : (
                                             <i>No Name</i>
                                         )}
-                                        {contact.favorite ? (
-                                            <span>★</span>
+                                        {member.payment_status === 'overdue' ? (
+                                            <span className="overdue">⚠️</span>
                                         ) : null}
                                     </NavLink>
                                 </li>
@@ -122,7 +126,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                         </ul>
                     ) : (
                         <p>
-                            <i>No contacts</i>
+                            <i>No members</i>
                         </p>
                     )}
                 </nav>

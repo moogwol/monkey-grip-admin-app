@@ -1,6 +1,17 @@
-# Welcome to React Router!
+# Monkey Grip BJJ Club Frontend
 
-- [React Router Docs](https://reactrouter.com/home)
+A modern React application for managing BJJ club members and class coupons, built with React Router v7 and TypeScript.
+
+## Features
+
+- Member management with belt rank tracking
+- Real-time search and filtering
+- Belt promotion interface
+- Payment status management
+- Class coupon tracking
+- Club statistics dashboard
+- Responsive design
+- Built with React Router v7 and Vite
 
 ## Development
 
