@@ -1,0 +1,51 @@
+# Docker Compose file for contacts-app
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: userpass
+      POSTGRES_DB: contactsdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./contacts-backend/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"  
+
+  contacts-api:
+    build:
+      context: ./contacts-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=contactsdb
+      - DB_USER=user
+      - DB_PASSWORD=userpass
+    volumes:
+      - ./contacts-api:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    command: ["npm", "run", "dev"]
+
+  contacts-frontend:
+    build:
+      context: ./contacts-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://contacts-api:3000/api
+    volumes:
+      - ./contacts-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - contacts-api
+    command: ["npm", "run", "dev"]
+
+volumes:
+  db-data:    

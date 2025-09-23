@@ -1,0 +1,412 @@
+# Contacts API Documentation
+
+## Base URL
+```
+http://localhost:3000
+```
+
+## Authentication
+No authentication required for this development API.
+
+## Content Type
+All API endpoints expect and return JSON data.
+```
+Content-Type: application/json
+```
+
+---
+
+## API Endpoints
+
+### Health Check
+
+#### GET /health
+Check API server health status.
+
+**URL:** `GET /health`
+
+**Response:**
+```json
+{
+  "status": "OK",
+  "timestamp": "2025-09-19T12:00:00.000Z",
+  "uptime": 123.45
+}
+```
+
+---
+
+### Root Endpoint
+
+#### GET /
+Get API information and available endpoints.
+
+**URL:** `GET /`
+
+**Response:**
+```json
+{
+  "message": "Contacts API",
+  "version": "1.0.0",
+  "endpoints": {
+    "health": "/health",
+    "contacts": "/api/contacts"
+  }
+}
+```
+
+---
+
+## Contacts Endpoints
+
+### GET /api/contacts
+Get all contacts or search contacts.
+
+**URL:** `GET /api/contacts`
+
+**Query Parameters:**
+- `search` (optional): Search term to filter contacts by name or email
+
+**Examples:**
+- `GET /api/contacts` - Get all contacts
+- `GET /api/contacts?search=john` - Search for contacts containing "john"
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "twitter": "@johndoe",
+      "avatar": "https://robohash.org/john.png",
+      "notes": "Sample contact",
+      "favorite": false
+    }
+  ],
+  "count": 1
+}
+```
+
+---
+
+### GET /api/contacts/:id
+Get a specific contact by ID.
+
+**URL:** `GET /api/contacts/{id}`
+
+**Parameters:**
+- `id` (required): Contact ID (integer)
+
+**Example:** `GET /api/contacts/1`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "twitter": "@johndoe",
+    "avatar": "https://robohash.org/john.png",
+    "notes": "Sample contact",
+    "favorite": false
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Contact not found"
+}
+```
+
+---
+
+### POST /api/contacts
+Create a new contact.
+
+**URL:** `POST /api/contacts`
+
+**Request Body:**
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane.smith@example.com",
+  "twitter": "@janesmith",
+  "avatar": "https://example.com/avatar.jpg",
+  "notes": "New contact",
+  "favorite": false
+}
+```
+
+**Required Fields:**
+- `first_name` (string, max 100 characters)
+- `last_name` (string, max 100 characters)
+- `email` (string, valid email format, max 255 characters, unique)
+
+**Optional Fields:**
+- `twitter` (string, max 255 characters)
+- `avatar` (string, valid URL)
+- `notes` (string, max 1000 characters)
+- `favorite` (boolean, default: false)
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Contact created successfully",
+  "data": {
+    "id": 2,
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "email": "jane.smith@example.com",
+    "twitter": "@janesmith",
+    "avatar": "https://example.com/avatar.jpg",
+    "notes": "New contact",
+    "favorite": false
+  }
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Validation errors",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Valid email is required"
+    }
+  ]
+}
+```
+
+**Error Response (409):**
+```json
+{
+  "success": false,
+  "message": "Email already exists"
+}
+```
+
+---
+
+### PUT /api/contacts/:id
+Update an existing contact.
+
+**URL:** `PUT /api/contacts/{id}`
+
+**Parameters:**
+- `id` (required): Contact ID (integer)
+
+**Request Body:**
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "jane.doe@example.com",
+  "twitter": "@janedoe",
+  "avatar": "https://example.com/new-avatar.jpg",
+  "notes": "Updated contact",
+  "favorite": true
+}
+```
+
+**Validation:** Same as POST endpoint
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Contact updated successfully",
+  "data": {
+    "id": 1,
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane.doe@example.com",
+    "twitter": "@janedoe",
+    "avatar": "https://example.com/new-avatar.jpg",
+    "notes": "Updated contact",
+    "favorite": true
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Contact not found"
+}
+```
+
+---
+
+### DELETE /api/contacts/:id
+Delete a contact.
+
+**URL:** `DELETE /api/contacts/{id}`
+
+**Parameters:**
+- `id` (required): Contact ID (integer)
+
+**Example:** `DELETE /api/contacts/1`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Contact deleted successfully",
+  "data": {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "twitter": "@johndoe",
+    "avatar": "https://robohash.org/john.png",
+    "notes": "Sample contact",
+    "favorite": false
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Contact not found"
+}
+```
+
+---
+
+### PATCH /api/contacts/:id/favorite
+Toggle the favorite status of a contact.
+
+**URL:** `PATCH /api/contacts/{id}/favorite`
+
+**Parameters:**
+- `id` (required): Contact ID (integer)
+
+**Request Body:** None required
+
+**Example:** `PATCH /api/contacts/1/favorite`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Favorite status updated",
+  "data": {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "twitter": "@johndoe",
+    "avatar": "https://robohash.org/john.png",
+    "notes": "Sample contact",
+    "favorite": true
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Contact not found"
+}
+```
+
+---
+
+## Error Codes
+
+- `200` - OK (Success)
+- `201` - Created (Resource created successfully)
+- `400` - Bad Request (Validation errors, invalid data)
+- `404` - Not Found (Resource not found)
+- `409` - Conflict (Duplicate email address)
+- `500` - Internal Server Error (Server error)
+
+## Example Usage
+
+### cURL Examples
+
+#### Get all contacts:
+```bash
+curl -X GET http://localhost:3000/api/contacts
+```
+
+#### Search contacts:
+```bash
+curl -X GET "http://localhost:3000/api/contacts?search=john"
+```
+
+#### Get specific contact:
+```bash
+curl -X GET http://localhost:3000/api/contacts/1
+```
+
+#### Create new contact:
+```bash
+curl -X POST http://localhost:3000/api/contacts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Alice",
+    "last_name": "Johnson",
+    "email": "alice@example.com",
+    "twitter": "@alice",
+    "notes": "Test contact"
+  }'
+```
+
+#### Update contact:
+```bash
+curl -X PUT http://localhost:3000/api/contacts/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "email": "alice.smith@example.com",
+    "twitter": "@alicesmith",
+    "favorite": true
+  }'
+```
+
+#### Delete contact:
+```bash
+curl -X DELETE http://localhost:3000/api/contacts/1
+```
+
+#### Toggle favorite:
+```bash
+curl -X PATCH http://localhost:3000/api/contacts/1/favorite
+```
+
+#### Health check:
+```bash
+curl -X GET http://localhost:3000/health
+```
+
+---
+
+## Notes
+
+- All contact IDs are auto-generated integers
+- Email addresses must be unique across all contacts
+- Search is case-insensitive and searches across first_name, last_name, and email fields
+- Avatar URLs should be valid HTTP/HTTPS URLs
+- The API includes CORS headers for cross-origin requests
+- Request bodies are limited to 10MB
+- The API uses Helmet.js for security headers
