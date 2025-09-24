@@ -1,15 +1,20 @@
-import { Form, useFetcher, useNavigate, redirect } from "react-router";
+import { Form, useFetcher, useNavigate, redirect } from "react-router"
 import type { Route } from "../+types/root";
 import { getMember, deleteMember, getMemberCoupons } from "../data";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const member = await getMember(params.memberId);
+  const memberId = params.memberId;
+  if (!memberId) {
+    throw new Response("Member ID is required", { status: 400 });
+  }
+  
+  const member = await getMember(memberId);
   if (!member) {
     throw new Response("Member not found", { status: 404 });
   }
   
   // Load member's coupons as well
-  const coupons = await getMemberCoupons(params.memberId);
+  const coupons = await getMemberCoupons(memberId);
   
   return { member, coupons };
 }
@@ -18,8 +23,13 @@ export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
   
+  const memberId = params.memberId;
+  if (!memberId) {
+    throw new Response("Member ID is required", { status: 400 });
+  }
+  
   if (intent === "delete") {
-    await deleteMember(params.memberId);
+    await deleteMember(memberId);
     return redirect("/");
   }
   

@@ -11,25 +11,28 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <div id="index-page">
-      <h1>BJJ Club Management System</h1>
+      <h1 >
+        <img src="/mg_logo_vectorised.svg" alt="MG Logo" className="page-logo" />
+        BJJ Club Management System
+      </h1>
       <p>
-        Welcome to the BJJ Club Management System. Select a member from the sidebar to view their details, 
+        Welcome to the BJJ Club Management System. Select a member from the sidebar to view their details,
         or click "New Member" to add a new member to the club.
       </p>
 
       {stats && (
         <div className="club-stats">
           <h2>Club Statistics</h2>
-          
+
           <div className="stats-summary">
             <div className="stat-item">
-              <strong>Total Members:</strong> {stats.total_members}
+              <strong>Total Members:</strong> {(stats as any).total_members}
             </div>
 
             <div className="stat-item">
               <strong>Belt Distribution:</strong>
               <ul>
-                {(stats.belt_distribution || []).map((item) => (
+                {((stats as any).belt_distribution || []).map((item: any) => (
                   <li key={item.belt_rank}>
                     {item.belt_rank.charAt(0).toUpperCase() + item.belt_rank.slice(1)}: {item.count}
                   </li>
@@ -40,7 +43,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="stat-item">
               <strong>Payment Status:</strong>
               <ul>
-                {(stats.payment_status_summary || []).map((item) => (
+                {((stats as any).payment_status_summary || []).map((item: any) => (
                   <li key={item.payment_status}>
                     {item.payment_status.charAt(0).toUpperCase() + item.payment_status.slice(1)}: {item.count}
                   </li>

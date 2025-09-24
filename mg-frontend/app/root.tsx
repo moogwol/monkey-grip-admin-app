@@ -9,7 +9,7 @@ import type { Route } from "./+types/root";
 
 import appStylesHref from "./app.css?url";
 
-import { getContacts, createEmptyContact } from "./data"
+import { getMembers, createEmptyMember } from "./data"
 
 
 
@@ -24,9 +24,9 @@ export function HydrateFallback() {
 
 // Action function to handle form submissions
 export async function action() {
-    const contact = await createEmptyContact();
-    console.log("Created contact", contact);
-    return redirect(`/contacts/${contact.id}/edit`);
+    const member = await createEmptyMember();
+    console.log("Created member", member);
+    return redirect(`/members/${member.id}/edit`);
 }
 
 // export default function App({ loaderData }: Route.ComponentProps) {
