@@ -1,7 +1,6 @@
 import {
     Form,
     Link,
-    NavLink,
     Outlet,
     Scripts,
     ScrollRestoration,
@@ -10,6 +9,7 @@ import {
     useNavigate,
     redirect,
     useSubmit,
+    useLocation,
 } from "react-router";
 import { useEffect } from "react";
 import type { Route } from "../+types/root";
@@ -17,6 +17,16 @@ import type { Route } from "../+types/root";
 import appStylesHref from "../app.css?url";
 
 import { getMembers, createEmptyMember } from "../data"
+import {
+    StyledNavLink,
+    Sidebar,
+    SidebarTitle,
+    SidebarControls,
+    SearchSpinner,
+    StyledNav,
+    BeltGraphic,
+} from "../components";
+
 
 // Loader function to fetch members data
 export async function loader({ request }: Route.LoaderArgs) {
@@ -41,12 +51,14 @@ type Member = {
     last_name: string;
     belt_rank: string;
     payment_status: string;
+    stripes: number;
 };
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     const { members, q }: { members: Member[]; q: string | null } = loaderData ?? { members: [], q: null };
 
     const navigation = useNavigation();
+    const location = useLocation();
     const submit = useSubmit();
     const searching =
         navigation.location &&
@@ -59,13 +71,14 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         }
     }, [q]);
 
+
     return (
         <>
-            <div id="sidebar">
-                <h1>
+            <Sidebar>
+                <SidebarTitle>
                     <Link to="/about">BJJ Club Manager</Link>
-                </h1>
-                <div>
+                </SidebarTitle>
+                <SidebarControls>
                     <Form
                         id="search-form"
                         role="search"
@@ -82,55 +95,56 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             placeholder="Search members"
                             type="search"
                         />
-                        <div
+                        <SearchSpinner
                             aria-hidden
                             hidden={!searching}
-                            id="search-spinner"
                         />
                     </Form>
                     <Form method="post">
-                        <button type="submit">New Member</button>
+                        <button type="submit">New</button>
                     </Form>
-                </div>
-                <nav>
+                </SidebarControls>
+                <StyledNav>
                     {members.length ? (
                         <ul>
-                            {members.map((member) => (
-                                <li key={member.id}>
-                                    <NavLink
-                                        className={({ isActive, isPending }) =>
-                                            isActive
-                                                ? "active"
-                                                : isPending
-                                                    ? "pending"
-                                                    : ""
-                                        }
+                            {members.map((member) => {
+                                const isActive = location.pathname === `/members/${member.id}`;
+                                const isPending = navigation.state === "loading";
 
-                                        to={`members/${member.id}`}>
-                                        {member.first_name || member.last_name ? (
-                                            <>
-                                                {member.first_name} {member.last_name}
-                                                <span className="belt-rank">
-                                                    ({member.belt_rank})
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <i>No Name</i>
-                                        )}
-                                        {member.payment_status === 'overdue' ? (
-                                            <span className="overdue">⚠️</span>
-                                        ) : null}
-                                    </NavLink>
-                                </li>
-                            ))}
+                                return (
+                                    <li key={member.id}>
+                                        <StyledNavLink
+                                            $isActive={isActive}
+                                            $isPending={isPending}
+                                            to={`members/${member.id}`}>
+                                            {member.first_name || member.last_name ? (
+                                                <>
+                                                    {member.first_name} {member.last_name}
+                                                
+                                                    <BeltGraphic
+                                                        beltColor={member.belt_rank}
+                                                        stripes={member.stripes}
+                                                        size="small" 
+                                                        />
+                                                </>
+                                            ) : (
+                                                <i>No Name</i>
+                                            )}
+                                            {/* {member.payment_status === 'overdue' ? (
+                                                <span className="overdue">⚠️</span>
+                                            ) : null} */}
+                                        </StyledNavLink>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     ) : (
                         <p>
                             <i>No members</i>
                         </p>
                     )}
-                </nav>
-            </div>
+                </StyledNav>
+            </Sidebar>
             <div
                 className={
                     navigation.state === "loading" ? "loading" : ""

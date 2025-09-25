@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
     email VARCHAR(255) UNIQUE,
     phone VARCHAR(20),
     date_of_birth DATE,

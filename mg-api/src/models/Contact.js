@@ -47,6 +47,7 @@ class Member {
     const {
       first_name,
       last_name,
+      avatar_url,
       email,
       phone,
       date_of_birth,
@@ -60,15 +61,15 @@ class Member {
 
     const query = `
       INSERT INTO members (
-        first_name, last_name, email, phone, date_of_birth,
+        first_name, last_name, avatar_url, email, phone, date_of_birth,
         belt_rank, stripes, last_promotion_date, payment_class, payment_status, active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `;
     
     const values = [
-      first_name, last_name, email, phone, date_of_birth,
+      first_name, last_name, avatar_url, email, phone, date_of_birth,
       belt_rank, stripes, last_promotion_date, payment_class, payment_status, active
     ];
     
@@ -80,6 +81,7 @@ class Member {
     const {
       first_name,
       last_name,
+      avatar_url,
       email,
       phone,
       date_of_birth,
@@ -93,15 +95,15 @@ class Member {
 
     const query = `
       UPDATE members 
-      SET first_name = $1, last_name = $2, email = $3, phone = $4,
-          date_of_birth = $5, belt_rank = $6, stripes = $7,
-          last_promotion_date = $8, payment_class = $9, payment_status = $10, active = $11
-      WHERE id = $12
+      SET first_name = $1, last_name = $2, avatar_url = $3, email = $4, phone = $5,
+          date_of_birth = $6, belt_rank = $7, stripes = $8,
+          last_promotion_date = $9, payment_class = $10, payment_status = $11, active = $12
+      WHERE id = $13
       RETURNING *
     `;
     
     const values = [
-      first_name, last_name, email, phone, date_of_birth,
+      first_name, last_name, avatar_url, email, phone, date_of_birth,
       belt_rank, stripes, last_promotion_date, payment_class, payment_status, active, id
     ];
     

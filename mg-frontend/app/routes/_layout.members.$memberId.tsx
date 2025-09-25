@@ -1,42 +1,58 @@
 import { Form, useFetcher, useNavigate, redirect } from "react-router"
 import type { Route } from "../+types/root";
 import { getMember, deleteMember, getMemberCoupons } from "../data";
+import {
+  MemberProfile,
+  MemberBanner,
+  MemberAvatar,
+  MemberHeader,
+  MemberContent,
+  MemberDetails,
+  ContactDetails,
+  CouponsSection,
+  MemberActions,
+  MemberInfo,
+  BeltGraphic,
+  PaymentStatusBadge,
+} from "../components";
+
 
 export async function loader({ params }: Route.LoaderArgs) {
   const memberId = params.memberId;
   if (!memberId) {
     throw new Response("Member ID is required", { status: 400 });
   }
-  
+
   const member = await getMember(memberId);
   if (!member) {
     throw new Response("Member not found", { status: 404 });
   }
-  
+
   // Load member's coupons as well
   const coupons = await getMemberCoupons(memberId);
-  
+
   return { member, coupons };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
-  
+
   const memberId = params.memberId;
   if (!memberId) {
     throw new Response("Member ID is required", { status: 400 });
   }
-  
+
   if (intent === "delete") {
     await deleteMember(memberId);
     return redirect("/");
   }
-  
+
   return null;
 }
 
 export default function Member({ loaderData }: Route.ComponentProps) {
+  console.log("Loader data:", loaderData);
   const { member, coupons } = loaderData;
   const navigate = useNavigate();
 
@@ -61,97 +77,88 @@ export default function Member({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div id="member">
-      <div>
-        <img
-          alt={`${member.first_name} ${member.last_name} avatar`}
-          key={member.id}
-          src={`https://ui-avatars.com/api/?name=${member.first_name}+${member.last_name}&background=random`}
-        />
-      </div>
+    <MemberProfile>
+      <MemberBanner>
+        <PaymentStatusBadge $status={member.payment_status}>
+          {member.payment_status.charAt(0).toUpperCase() + member.payment_status.slice(1)}
+        </PaymentStatusBadge>
+        
+        <MemberAvatar>
+          <img
+            alt={`${member.first_name} ${member.last_name} avatar`}
+            key={member.id}
+            src={
+              member.avatar_url || 
+              `https://robohash.org/${member.first_name}+${member.last_name}`
+            }
+            onError={(e) => {
+              // Fallback to generated avatar if the avatar_url fails to load
+              if (e.currentTarget.src !== `https://ui-avatars.com/api/?name=${member.first_name}+${member.last_name}&background=random`) {
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${member.first_name}+${member.last_name}&background=random`;
+              }
+            }}
+          />
+        </MemberAvatar>
+        <MemberHeader>
 
-      <div>
-        <h1>
-          {member.first_name && member.last_name ? (
-            <>
-              {member.first_name} {member.last_name}
-            </>
-          ) : (
-            <>No Name</>
-          )}
-        </h1>
-
-        <div className="member-details">
-          <div className="belt-info">
-            <span 
-              className="belt-rank"
-              style={{ 
-                backgroundColor: beltColors[member.belt_rank], 
-                color: member.belt_rank === 'white' ? '#000' : '#fff',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontWeight: 'bold'
-              }}
-            >
-              {member.belt_rank.charAt(0).toUpperCase() + member.belt_rank.slice(1)} Belt
-            </span>
-            {member.stripes > 0 && (
-              <span className="stripes">
-                {Array.from({ length: member.stripes }, (_, i) => (
-                  <span key={i} className="stripe">█</span>
-                ))}
-              </span>
+          <h1>
+            {member.first_name && member.last_name ? (
+              <>
+                {member.first_name} {member.last_name}
+              </>
+            ) : (
+              <>No Name</>
             )}
-          </div>
+          </h1>
+        </MemberHeader>
+      </MemberBanner>
+      <MemberContent>
 
-          <div className="payment-status">
-            <span 
-              className={`status ${member.payment_status}`}
-              style={{
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                backgroundColor: 
-                  member.payment_status === 'current' ? '#28a745' :
-                  member.payment_status === 'overdue' ? '#ffc107' : '#dc3545',
-                color: member.payment_status === 'overdue' ? '#000' : '#fff'
-              }}
-            >
-              {member.payment_status.charAt(0).toUpperCase() + member.payment_status.slice(1)}
-            </span>
-          </div>
-        </div>
+        <MemberDetails>
+          <BeltGraphic
+            beltColor={member.belt_rank}
+            stripes={member.stripes}
+            size="large"
+          />
+          {/* <span style={{ marginLeft: '0.5rem', fontWeight: 'bold' }}>
+            {member.belt_rank.charAt(0).toUpperCase() + member.belt_rank.slice(1)} Belt
+          </span> */}
 
-        {member.email && (
+          <ContactDetails>
+            {member.email && (
+              <p>
+                <strong>Email: </strong>
+                <a href={`mailto:${member.email}`}>
+                  {member.email}
+                </a>
+              </p>
+            )}
+
+            {member.phone && (
+              <p>
+                <strong>Phone: </strong>
+                <a href={`tel:${member.phone}`}>
+                  {member.phone}
+                </a>
+              </p>
+            )}
+          </ContactDetails>
+
           <p>
-            <a href={`mailto:${member.email}`}>
-              {member.email}
-            </a>
+            <strong>Join Date:</strong> {formatDate(member.join_date)}
           </p>
-        )}
 
-        {member.phone && (
-          <p>
-            <a href={`tel:${member.phone}`}>
-              {member.phone}
-            </a>
-          </p>
-        )}
-
-        <p>
-          <strong>Join Date:</strong> {formatDate(member.join_date)}
-        </p>
-
-        {member.notes && (
-          <div>
-            <h3>Notes</h3>
-            <p>{member.notes}</p>
-          </div>
-        )}
+          {member.notes && (
+            <div>
+              <h3>Notes</h3>
+              <p>{member.notes}</p>
+            </div>
+          )}
+        </MemberDetails>
 
         <div className="coupons-section">
           <h3>Class Coupons</h3>
-          
+
           {getActiveCoupons().length > 0 && (
             <div className="active-coupons">
               <h4>Active Coupons</h4>
@@ -172,7 +179,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
                       )}
                     </div>
                     <div className="progress-bar">
-                      <div 
+                      <div
                         className="progress"
                         style={{
                           width: `${(coupon.classes_used / coupon.classes_total) * 100}%`,
@@ -189,7 +196,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           )}
 
           {getUsedCoupons().length > 0 && (
-            <div className="used-coupons">
+            <CouponsSection>
               <h4>Used Coupons</h4>
               <ul>
                 {getUsedCoupons().map(coupon => (
@@ -208,7 +215,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </CouponsSection>
           )}
 
           {coupons.length === 0 && (
@@ -216,7 +223,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           )}
         </div>
 
-        <div className="member-actions">
+        <MemberActions>
           <Form action={`/members/${member.id}/edit`} method="get">
             <button type="submit">Edit</button>
           </Form>
@@ -235,8 +242,8 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           >
             <button type="submit">Delete</button>
           </Form>
-        </div>
-      </div>
-    </div>
+        </MemberActions>
+      </MemberContent>
+    </MemberProfile>
   );
 }
