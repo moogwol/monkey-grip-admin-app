@@ -1,4 +1,4 @@
-import { Form, useFetcher, useNavigate, redirect } from "react-router"
+import { Form, useFetcher, useNavigate, redirect } from "react-router";
 import type { Route } from "../+types/root";
 import { getMember, deleteMember, getMemberCoupons } from "../data";
 import {
@@ -53,27 +53,29 @@ export async function action({ params, request }: Route.ActionArgs) {
 
 export default function Member({ loaderData }: Route.ComponentProps) {
   console.log("Loader data:", loaderData);
-  const { member, coupons } = loaderData;
+
+  if (!loaderData) {
+    throw new Response("Member not found", { status: 404 });
+  }
+
+  const data = loaderData as any;
+  const { member, coupons = [] } = data;
   const navigate = useNavigate();
 
-  const beltColors = {
-    white: '#ffffff',
-    blue: '#0066cc',
-    purple: '#800080',
-    brown: '#8b4513',
-    black: '#000000'
-  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
 
   const getActiveCoupons = () => {
-    return coupons.filter(coupon => coupon.classes_used < coupon.classes_total);
+    if (!Array.isArray(coupons)) return [];
+    return coupons.filter((coupon: any) => coupon.classes_used < coupon.classes_total);
   };
 
   const getUsedCoupons = () => {
-    return coupons.filter(coupon => coupon.classes_used >= coupon.classes_total);
+    if (!Array.isArray(coupons)) return [];
+    return coupons.filter((coupon: any) => coupon.classes_used >= coupon.classes_total);
   };
 
   return (
