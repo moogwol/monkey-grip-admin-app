@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
     email VARCHAR(255) UNIQUE,
     phone VARCHAR(20),
     date_of_birth DATE,
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS members (
 | `id` | SERIAL | PRIMARY KEY | Auto-incrementing unique identifier |
 | `first_name` | VARCHAR(100) | NOT NULL | Member's first name |
 | `last_name` | VARCHAR(100) | NOT NULL | Member's last name |
+| `avatar_url` | TEXT | NULLABLE | URL to member's profile photo |
 | `email` | VARCHAR(255) | UNIQUE | Member's email address |
 | `phone` | VARCHAR(20) | NULLABLE | Phone number |
 | `date_of_birth` | DATE | NULLABLE | Date of birth |
@@ -91,6 +93,7 @@ erDiagram
         serial id PK "Auto-incrementing primary key"
         varchar first_name "First name (100 chars max)"
         varchar last_name "Last name (100 chars max)"
+        text avatar_url "URL to member's profile photo"
         varchar email UK "Email address (255 chars max, unique)"
         varchar phone "Phone number (20 chars max)"
         date date_of_birth "Date of birth"
@@ -150,11 +153,11 @@ erDiagram
 
 ### Example Members
 ```sql
-INSERT INTO members (first_name, last_name, email, phone, date_of_birth, belt_rank, stripes, payment_class, payment_status) VALUES 
-('João', 'Silva', 'joao.silva@email.com', '+1-555-0123', '1990-05-15', 'blue', 2, 'evenings', 'paid'),
-('Maria', 'Santos', 'maria.santos@email.com', '+1-555-0124', '1995-03-20', 'white', 4, 'both', 'paid'),
-('Carlos', 'Oliveira', 'carlos.oliveira@email.com', '+1-555-0125', '1988-12-10', 'purple', 1, 'mornings', 'overdue'),
-('Ana', 'Costa', 'ana.costa@email.com', '+1-555-0126', '1992-07-08', 'white', 0, 'evenings', 'trial');
+INSERT INTO members (first_name, last_name, avatar_url, email, phone, date_of_birth, belt_rank, stripes, payment_class, payment_status) VALUES 
+('João', 'Silva', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', 'joao.silva@email.com', '+1-555-0123', '1990-05-15', 'blue', 2, 'evenings', 'paid'),
+('Maria', 'Santos', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'maria.santos@email.com', '+1-555-0124', '1995-03-20', 'white', 4, 'both', 'paid'),
+('Carlos', 'Oliveira', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', 'carlos.oliveira@email.com', '+1-555-0125', '1988-12-10', 'purple', 1, 'mornings', 'overdue'),
+('Ana', 'Costa', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face', 'ana.costa@email.com', '+1-555-0126', '1992-07-08', 'white', 0, 'evenings', 'trial');
 ```
 
 ### Example Class Coupons
@@ -178,6 +181,7 @@ INSERT INTO class_coupons (member_id, total_classes, classes_remaining, amount_p
 | Update Member | PUT | `/api/members/:id` | Update member information |
 | Delete Member | DELETE | `/api/members/:id` | Deactivate member |
 | Search Members | GET | `/api/members?search=term` | Search by name, email, or belt |
+| Upload Avatar | POST | `/api/members/:id/avatar` | Upload member profile photo |
 
 ### Class Coupon Management
 | Operation | HTTP Method | Endpoint | Description |
@@ -198,6 +202,7 @@ CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
     email VARCHAR(255) UNIQUE,
     phone VARCHAR(20),
     date_of_birth DATE,
@@ -231,11 +236,11 @@ CREATE INDEX idx_coupons_member_active ON class_coupons(member_id, active);
 ### Seed Data
 ```sql
 -- File: contacts-backend/seed-data.sql
-INSERT INTO members (first_name, last_name, email, phone, date_of_birth, belt_rank, stripes, payment_class, payment_status, last_promotion_date) VALUES 
-('João', 'Silva', 'joao.silva@email.com', '+1-555-0123', '1990-05-15', 'blue', 2, 'evenings', 'paid', '2024-06-01'),
-('Maria', 'Santos', 'maria.santos@email.com', '+1-555-0124', '1995-03-20', 'white', 4, 'both', 'paid', '2024-08-15'),
-('Carlos', 'Oliveira', 'carlos.oliveira@email.com', '+1-555-0125', '1988-12-10', 'purple', 1, 'mornings', 'overdue', '2024-01-20'),
-('Ana', 'Costa', 'ana.costa@email.com', '+1-555-0126', '1992-07-08', 'white', 0, 'evenings', 'trial', NULL);
+INSERT INTO members (first_name, last_name, avatar_url, email, phone, date_of_birth, belt_rank, stripes, payment_class, payment_status, last_promotion_date) VALUES 
+('João', 'Silva', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', 'joao.silva@email.com', '+1-555-0123', '1990-05-15', 'blue', 2, 'evenings', 'paid', '2024-06-01'),
+('Maria', 'Santos', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'maria.santos@email.com', '+1-555-0124', '1995-03-20', 'white', 4, 'both', 'paid', '2024-08-15'),
+('Carlos', 'Oliveira', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', 'carlos.oliveira@email.com', '+1-555-0125', '1988-12-10', 'purple', 1, 'mornings', 'overdue', '2024-01-20'),
+('Ana', 'Costa', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face', 'ana.costa@email.com', '+1-555-0126', '1992-07-08', 'white', 0, 'evenings', 'trial', NULL);
 
 INSERT INTO class_coupons (member_id, total_classes, classes_remaining, amount_paid, expiry_date) VALUES 
 (4, 10, 8, 150.00, '2025-01-31'),

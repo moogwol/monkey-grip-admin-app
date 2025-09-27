@@ -36,14 +36,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     return { members, q };
 }
 
-// Action function to handle form submissions (create member)
-export async function action({ request }: Route.ActionArgs) {
-    const member = await createEmptyMember();
-    return redirect(`/members/${member.id}/edit`);
-}
-
-
-
+// // Action function to handle form submissions (create member)
+// export async function action({ request }: Route.ActionArgs) {
+//     return redirect(`/members/new`);
+// }
 
 type Member = {
     id: string;
@@ -100,9 +96,9 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             hidden={!searching}
                         />
                     </Form>
-                    <Form method="post">
-                        <button type="submit">New</button>
-                    </Form>
+                        <Link to="/members/new" >
+                            <button type="submit">New</button>
+                        </Link>
                 </SidebarControls>
                 <StyledNav>
                     {members.length ? (
@@ -120,12 +116,12 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                                             {member.first_name || member.last_name ? (
                                                 <>
                                                     {member.first_name} {member.last_name}
-                                                
+
                                                     <BeltGraphic
                                                         beltColor={member.belt_rank}
                                                         stripes={member.stripes}
-                                                        size="small" 
-                                                        />
+                                                        size="small"
+                                                    />
                                                 </>
                                             ) : (
                                                 <i>No Name</i>

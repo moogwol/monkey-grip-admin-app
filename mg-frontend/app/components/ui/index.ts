@@ -7,3 +7,4 @@ export { SearchSpinner } from './SearchSpinner';
 export { StyledNav } from './StyledNav';
 export * from './MemberComponents';
 export * from './BeltGraphic';
+export * from './NewMemberComponents';

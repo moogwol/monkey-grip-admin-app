@@ -76,6 +76,19 @@ export async function createEmptyMember() {
   }
 }
 
+export async function createMember(member: MemberMutation) {
+  try {
+    const response = await apiClient.createMember(member);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to create member');
+  } catch (error) {
+    console.error('Failed to create member:', error);
+    throw error;
+  }
+}
+
 export async function getMember(id: string) {
   try {
     console.log('Fetching member with ID:', id);
