@@ -231,7 +231,8 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           </Form>
 
           <Form
-            action={`/members/${member.id}/destroy`}
+            // action={`/members/${member.id}/destroy`}
+            action="destroy"
             method="post"
             onSubmit={(event) => {
               const response = confirm(

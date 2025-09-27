@@ -62,7 +62,12 @@ router.get('/', async (req, res) => {
       members = await Member.search(search);
     } else {
       const filters = {};
-      if (active !== undefined) filters.active = active === 'true';
+      // Default to showing only active members unless explicitly specified
+      if (active !== undefined) {
+        filters.active = active === 'true';
+      } else {
+        filters.active = true;
+      }
       if (belt_rank) filters.belt_rank = belt_rank;
       if (payment_status) filters.payment_status = payment_status;
       if (payment_class) filters.payment_class = payment_class;
