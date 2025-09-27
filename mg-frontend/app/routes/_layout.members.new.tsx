@@ -87,7 +87,7 @@ export default function NewMember() {
 
                 <FormField>
                     <FormLabel>Date of Birth</FormLabel>
-                    <FormInput type="date" name="date_of_birth" />
+                    <FormInput type="date" name="date_of_birth" data-lpignore="true" />
                 </FormField>
 
                 <FormRow>
