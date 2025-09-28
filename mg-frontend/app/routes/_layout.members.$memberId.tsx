@@ -34,23 +34,6 @@ export async function loader({ params }: Route.LoaderArgs) {
   return { member, coupons };
 }
 
-export async function action({ params, request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  const memberId = params.memberId;
-  if (!memberId) {
-    throw new Response("Member ID is required", { status: 400 });
-  }
-
-  if (intent === "delete") {
-    await deleteMember(memberId);
-    return redirect("/");
-  }
-
-  return null;
-}
-
 export default function Member({ loaderData }: Route.ComponentProps) {
   console.log("Loader data:", loaderData);
 
@@ -122,10 +105,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             stripes={member.stripes}
             size="large"
           />
-          {/* <span style={{ marginLeft: '0.5rem', fontWeight: 'bold' }}>
-            {member.belt_rank.charAt(0).toUpperCase() + member.belt_rank.slice(1)} Belt
-          </span> */}
-
+        
           <ContactDetails>
             {member.email && (
               <p>
@@ -231,8 +211,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           </Form>
 
           <Form
-            // action={`/members/${member.id}/destroy`}
-            action="destroy"
+            action="destroy" // redirects to members/:id/destroy where the deletion is handled
             method="post"
             onSubmit={(event) => {
               const response = confirm(

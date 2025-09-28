@@ -7,4 +7,5 @@ export { SearchSpinner } from './SearchSpinner';
 export { StyledNav } from './StyledNav';
 export * from './MemberComponents';
 export * from './BeltGraphic';
-export * from './NewMemberComponents';
+export * from './StyledFormComponents';
+export * from './NewMemberComponents'; // Legacy aliases only
