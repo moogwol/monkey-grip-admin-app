@@ -9,3 +9,4 @@ export * from './MemberComponents';
 export * from './BeltGraphic';
 export * from './StyledFormComponents';
 export * from './NewMemberComponents'; // Legacy aliases only
+export * from './EditMemberComponents'; // New Edit Member components

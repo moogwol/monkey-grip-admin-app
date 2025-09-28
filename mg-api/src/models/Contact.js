@@ -111,6 +111,55 @@ class Member {
     return result.rows[0];
   }
 
+  static async updateProfile(id, profileData) {
+    const { avatar_url, email, phone, date_of_birth, belt_rank, stripes, payment_class, payment_status } = profileData;
+    let fields = [];
+    const queryParams = [];
+    
+    if (avatar_url !== undefined) {
+      fields.push("avatar_url = $" + (queryParams.length + 1));
+      queryParams.push(avatar_url);
+    }
+    if (email !== undefined) {
+      fields.push("email = $" + (queryParams.length + 1));
+      queryParams.push(email);
+    }
+    if (phone !== undefined) {
+      fields.push("phone = $" + (queryParams.length + 1));
+      queryParams.push(phone);
+    }
+    if (date_of_birth !== undefined) {
+      fields.push("date_of_birth = $" + (queryParams.length + 1));
+      queryParams.push(date_of_birth);
+    }
+    if (belt_rank !== undefined) {
+      fields.push("belt_rank = $" + (queryParams.length + 1));
+      queryParams.push(belt_rank);
+    }
+    if (stripes !== undefined) {
+      fields.push("stripes = $" + (queryParams.length + 1));
+      queryParams.push(stripes);
+    }
+    if (payment_class !== undefined) {
+      fields.push("payment_class = $" + (queryParams.length + 1));
+      queryParams.push(payment_class);
+    }
+    if (payment_status !== undefined) {
+      fields.push("payment_status = $" + (queryParams.length + 1));
+      queryParams.push(payment_status);
+    }
+    
+    if (fields.length === 0) {
+      throw new Error("No valid fields to update");
+    }
+    
+    const query = `UPDATE members SET ${fields.join(", ")} WHERE id = $${queryParams.length + 1} RETURNING *`;
+    queryParams.push(id);
+    
+    const result = await db.query(query, queryParams);
+    return result.rows[0];
+  }
+
   static async delete(id) {
     // Soft delete - set active to false
     const query = 'UPDATE members SET active = false WHERE id = $1 RETURNING *';

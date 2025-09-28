@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
   try {
     const { search, active, belt_rank, payment_status, payment_class } = req.query;
     let members;
-    
+
     if (search) {
       members = await Member.search(search);
     } else {
@@ -71,10 +71,10 @@ router.get('/', async (req, res) => {
       if (belt_rank) filters.belt_rank = belt_rank;
       if (payment_status) filters.payment_status = payment_status;
       if (payment_class) filters.payment_class = payment_class;
-      
+
       members = await Member.findAll(filters);
     }
-    
+
     res.json({
       success: true,
       data: members,
@@ -94,7 +94,7 @@ router.get('/stats', async (req, res) => {
   try {
     const beltDistribution = await Member.getBeltDistribution();
     const paymentStatusSummary = await Member.getPaymentStatusSummary();
-    
+
     res.json({
       success: true,
       data: {
@@ -115,23 +115,23 @@ router.get('/stats', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!/^\d+$/.test(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid member ID'
       });
     }
-    
+
     const member = await Member.findById(id);
-    
+
     if (!member) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: member
@@ -156,9 +156,9 @@ router.post('/', validateMember, async (req, res) => {
         errors: errors.array()
       });
     }
-    
+
     const member = await Member.create(req.body);
-    
+
     res.status(201).json({
       success: true,
       message: 'Member created successfully',
@@ -166,14 +166,14 @@ router.post('/', validateMember, async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating member:', error);
-    
+
     if (error.code === '23505') { // Unique violation (email)
       return res.status(409).json({
         success: false,
         message: 'Email already exists'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -181,51 +181,37 @@ router.post('/', validateMember, async (req, res) => {
   }
 });
 
-// PUT /members/:id - Update a member
-router.put('/:id', validateMember, async (req, res) => {
+// PATCH /members/:id - Update a member
+router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+    const updates = req.body;
+
     if (!/^\d+$/.test(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid member ID'
       });
     }
-    
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation errors',
-        errors: errors.array()
-      });
-    }
-    
-    const member = await Member.update(id, req.body);
-    
+
+    // Use updateProfile for partial updates
+    const member = await Member.updateProfile(id, updates);
+
     if (!member) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Member updated successfully',
       data: member
     });
+
   } catch (error) {
     console.error('Error updating member:', error);
-    
-    if (error.code === '23505') { // Unique violation (email)
-      return res.status(409).json({
-        success: false,
-        message: 'Email already exists'
-      });
-    }
-    
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -237,23 +223,23 @@ router.put('/:id', validateMember, async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!/^\d+$/.test(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid member ID'
       });
     }
-    
+
     const member = await Member.delete(id);
-    
+
     if (!member) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Member deactivated successfully',
@@ -273,16 +259,16 @@ router.patch('/:id/promote', async (req, res) => {
   try {
     const { id } = req.params;
     const { belt_rank, stripes, stripe_only } = req.body;
-    
+
     if (!/^\d+$/.test(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid member ID'
       });
     }
-    
+
     let member;
-    
+
     if (stripe_only) {
       // Just add stripes
       member = await Member.addStripes(id, stripes || 1);
@@ -296,14 +282,14 @@ router.patch('/:id/promote', async (req, res) => {
       }
       member = await Member.promoteToNextBelt(id, belt_rank, stripes || 0);
     }
-    
+
     if (!member) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Member promoted successfully',
@@ -323,30 +309,30 @@ router.patch('/:id/payment-status', async (req, res) => {
   try {
     const { id } = req.params;
     const { payment_status } = req.body;
-    
+
     if (!/^\d+$/.test(id)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid member ID'
       });
     }
-    
+
     if (!['paid', 'overdue', 'trial'].includes(payment_status)) {
       return res.status(400).json({
         success: false,
         message: 'Payment status must be: paid, overdue, or trial'
       });
     }
-    
+
     const member = await Member.updatePaymentStatus(id, payment_status);
-    
+
     if (!member) {
       return res.status(404).json({
         success: false,
         message: 'Member not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Payment status updated successfully',

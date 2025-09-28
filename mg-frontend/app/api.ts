@@ -77,7 +77,7 @@ export const apiClient = {
 
   async updateMember(id: string, member: Partial<MemberRecord>): Promise<ApiResponse<MemberRecord>> {
     return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(member),
     });
   },

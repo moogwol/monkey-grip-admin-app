@@ -1,4 +1,4 @@
-import { Form, useFetcher, useNavigate, redirect } from "react-router";
+import { Form, useFetcher, useNavigate, redirect, Outlet } from "react-router";
 import type { Route } from "../+types/root";
 import { getMember, deleteMember, getMemberCoupons } from "../data";
 import {
@@ -67,13 +67,13 @@ export default function Member({ loaderData }: Route.ComponentProps) {
         <PaymentStatusBadge $status={member.payment_status}>
           {member.payment_status.charAt(0).toUpperCase() + member.payment_status.slice(1)}
         </PaymentStatusBadge>
-        
+
         <MemberAvatar>
           <img
             alt={`${member.first_name} ${member.last_name} avatar`}
             key={member.id}
             src={
-              member.avatar_url || 
+              member.avatar_url ||
               `https://robohash.org/${member.first_name}+${member.last_name}`
             }
             onError={(e) => {
@@ -105,7 +105,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             stripes={member.stripes}
             size="large"
           />
-        
+
           <ContactDetails>
             {member.email && (
               <p>
@@ -206,7 +206,9 @@ export default function Member({ loaderData }: Route.ComponentProps) {
         </div>
 
         <MemberActions>
-          <Form action={`/members/${member.id}/edit`} method="get">
+          {/* <Form action={`/members/${member.id}/edit`} */}
+          <Form action="edit"  // redirects to members/:id/edit where the editing is handled
+            method="get">
             <button type="submit">Edit</button>
           </Form>
 
