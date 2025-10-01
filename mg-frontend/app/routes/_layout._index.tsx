@@ -1,5 +1,27 @@
 import { getMemberStats } from "../data";
 import type { Route } from "../+types/root";
+import {
+  IndexPageContainer,
+  IndexPageHeader,
+  IndexPageTitle,
+  IndexPageLogo,
+  IndexPageSubtitle,
+  StatsSection,
+  StatsSectionTitle,
+  StatsGrid,
+  StatCard,
+  StatTitle,
+  StatValue,
+  StatList,
+  StatListItem,
+  StatLabel,
+  StatCount,
+  QuickActionsSection,
+  QuickActionsTitle,
+  QuickActionsList,
+  QuickActionItem,
+  QuickActionButton,
+} from "../components";
 
 export async function loader() {
   const stats = await getMemberStats();
@@ -10,58 +32,78 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { stats } = loaderData || { stats: null };
 
   return (
-    <div id="index-page">
-      <h1 >
-        <img src="/mg_logo_vectorised.svg" alt="MG Logo" className="page-logo" />
-        BJJ Club Management System
-      </h1>
-      <p>
-        Welcome to the BJJ Club Management System. Select a member from the sidebar to view their details,
-        or click "New Member" to add a new member to the club.
-      </p>
+    <IndexPageContainer>
+      <IndexPageHeader>
+        <IndexPageTitle>
+          <IndexPageLogo src="/mg_logo_vectorised.svg" alt="MG Logo" />
+          Monkey Grip Admin
+        </IndexPageTitle>
+        <IndexPageSubtitle>
+          Welcome to the BJJ Club Management System. Select a member from the sidebar to view their details,
+          or click "New Member" to add a new member to the club.
+        </IndexPageSubtitle>
+      </IndexPageHeader>
 
       {stats && (
-        <div className="club-stats">
-          <h2>Club Statistics</h2>
+        <StatsSection>
+          <StatsSectionTitle>Club Statistics</StatsSectionTitle>
+          <StatsGrid>
+            <StatCard>
+              <StatTitle>Total Members</StatTitle>
+              <StatValue>{(stats as any).total_members}</StatValue>
+            </StatCard>
 
-          <div className="stats-summary">
-            <div className="stat-item">
-              <strong>Total Members:</strong> {(stats as any).total_members}
-            </div>
-
-            <div className="stat-item">
-              <strong>Belt Distribution:</strong>
-              <ul>
+            <StatCard>
+              <StatTitle>Belt Distribution</StatTitle>
+              <StatList>
                 {((stats as any).belt_distribution || []).map((item: any) => (
-                  <li key={item.belt_rank}>
-                    {item.belt_rank.charAt(0).toUpperCase() + item.belt_rank.slice(1)}: {item.count}
-                  </li>
+                  <StatListItem key={item.belt_rank}>
+                    <StatLabel>
+                      {item.belt_rank.charAt(0).toUpperCase() + item.belt_rank.slice(1)}
+                    </StatLabel>
+                    <StatCount>{item.count}</StatCount>
+                  </StatListItem>
                 ))}
-              </ul>
-            </div>
+              </StatList>
+            </StatCard>
 
-            <div className="stat-item">
-              <strong>Payment Status:</strong>
-              <ul>
+            <StatCard>
+              <StatTitle>Payment Status</StatTitle>
+              <StatList>
                 {((stats as any).payment_status_summary || []).map((item: any) => (
-                  <li key={item.payment_status}>
-                    {item.payment_status.charAt(0).toUpperCase() + item.payment_status.slice(1)}: {item.count}
-                  </li>
+                  <StatListItem key={item.payment_status}>
+                    <StatLabel>
+                      {item.payment_status.charAt(0).toUpperCase() + item.payment_status.slice(1)}
+                    </StatLabel>
+                    <StatCount>{item.count}</StatCount>
+                  </StatListItem>
                 ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+              </StatList>
+            </StatCard>
+          </StatsGrid>
+        </StatsSection>
       )}
 
-      <div className="quick-actions">
-        <h3>Quick Actions</h3>
-        <ul>
-          <li><a href="#" onClick={() => alert('Feature coming soon!')}>View All Members</a></li>
-          <li><a href="#" onClick={() => alert('Feature coming soon!')}>Manage Class Coupons</a></li>
-          <li><a href="#" onClick={() => alert('Feature coming soon!')}>Generate Reports</a></li>
-        </ul>
-      </div>
-    </div>
+      <QuickActionsSection>
+        <QuickActionsTitle>Quick Actions</QuickActionsTitle>
+        <QuickActionsList>
+          <QuickActionItem>
+            <QuickActionButton onClick={() => alert('Feature coming soon!')}>
+              View All Members
+            </QuickActionButton>
+          </QuickActionItem>
+          <QuickActionItem>
+            <QuickActionButton onClick={() => alert('Feature coming soon!')}>
+              Manage Class Coupons
+            </QuickActionButton>
+          </QuickActionItem>
+          <QuickActionItem>
+            <QuickActionButton onClick={() => alert('Feature coming soon!')}>
+              Generate Reports
+            </QuickActionButton>
+          </QuickActionItem>
+        </QuickActionsList>
+      </QuickActionsSection>
+    </IndexPageContainer>
   );
 }

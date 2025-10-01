@@ -106,6 +106,8 @@ body {
   width: 100%;
 }
 
+/* Legacy sidebar CSS - now using styled-components */
+/*
 #sidebar {
   width: 22rem;
   min-width: 22rem;
@@ -116,12 +118,16 @@ body {
   flex-direction: column;
   flex-shrink: 0;
 }
+*/
 
+/*
 #sidebar > * {
   padding-left: 2rem;
   padding-right: 2rem;
 }
+*/
 
+/*
 #sidebar h1 {
   font-size: 1rem;
   font-weight: 500;
@@ -133,7 +139,9 @@ body {
   order: 1;
   line-height: 1;
 }
+*/
 
+/*
 #sidebar h1 a {
   color: #3992ff;
   text-decoration: none;
@@ -142,7 +150,9 @@ body {
 #sidebar h1 a:hover {
   text-decoration: underline;
 }
+*/
 
+/*
 #sidebar h1::before {
   content: "";
   display: inline-block;
@@ -156,7 +166,9 @@ body {
   position: relative;
   top: 2px;
 }
+*/
 
+/*
 #sidebar > div {
   display: flex;
   align-items: center;
@@ -165,11 +177,15 @@ body {
   padding-bottom: 1rem;
   border-bottom: 1px solid #e3e3e3;
 }
+*/
 
+/*
 #sidebar > div form {
   position: relative;
 }
+*/
 
+/*
 #sidebar > div form input[type="search"] {
   box-sizing: border-box;
   width: 100%;
@@ -184,6 +200,7 @@ body {
 #sidebar > div form input[type="search"].loading {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='%23999' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' /%3E%3C/svg%3E");
 }
+*/
 
 #search-spinner {
   width: 1rem;
@@ -204,12 +221,15 @@ body {
   }
 }
 
+/*
 #sidebar nav {
   flex: 1;
   overflow: auto;
   padding-top: 1rem;
 }
+*/
 
+/*
 #sidebar nav a span {
   float: right;
   color: #eeb004;
@@ -217,14 +237,18 @@ body {
 #sidebar nav a.active span {
   color: inherit;
 }
+*/
 
 i {
   color: #818181;
 }
+/*
 #sidebar nav .active i {
   color: inherit;
 }
+*/
 
+/*
 #sidebar ul {
   padding: 0;
   margin: 0;
@@ -234,6 +258,7 @@ i {
 #sidebar li {
   margin: 0.25rem 0;
 }
+*/
 
 /* Sidebar styles moved to styled-components */
 

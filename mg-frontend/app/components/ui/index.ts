@@ -1,12 +1,9 @@
-// UI Components - Individual exports for better tree shaking
-export { StyledNavLink } from './StyledNavLink';
-export { Sidebar } from './Sidebar';
-export { SidebarTitle } from './SidebarTitle';
-export { SidebarControls } from './SidebarControls';
+// UI Components - Directory-based organization for better maintainability
+export * from './navigation';  // Navigation components (Sidebar, NavLink, etc.)
+export * from './member';      // Member-related components (Profile, Banner, etc.)
+export * from './form';        // Form components (Inputs, Buttons, Layout, etc.)
+export * from './home';        // Home page components
+
+// Individual components that don't belong to a specific domain
 export { SearchSpinner } from './SearchSpinner';
-export { StyledNav } from './StyledNav';
-export * from './MemberComponents';
 export * from './BeltGraphic';
-export * from './StyledFormComponents';
-export * from './NewMemberComponents'; // Legacy aliases only
-export * from './EditMemberComponents'; // New Edit Member components

@@ -72,7 +72,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         <>
             <Sidebar>
                 <SidebarTitle>
-                    <Link to="/about">BJJ Club Manager</Link>
+                    <Link to="/">Monkey Grip Admin</Link>
                 </SidebarTitle>
                 <SidebarControls>
                     <Form

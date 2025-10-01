@@ -1,5 +1,5 @@
 import styled, { keyframes, css } from "styled-components";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 // Progress animation for pending states
 const progress = keyframes`
@@ -19,8 +19,8 @@ interface StyledNavLinkProps {
   $isPending?: boolean;
 }
 
-// Use a div wrapper to completely bypass any link styling
-const NavLinkWrapper = styled.div<StyledNavLinkProps>`
+// Use NavLink directly with styled-components
+export const StyledNavLink = styled(NavLink)<StyledNavLinkProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,14 +31,29 @@ const NavLinkWrapper = styled.div<StyledNavLinkProps>`
   color: inherit;
   gap: 1rem;
   transition: background-color 100ms;
-  cursor: pointer;
+  text-decoration: none;
+  
+  &:hover {
+    background: #e3e3e3;
+  }
+  
+  &:visited,
+  &:link {
+    color: inherit;
+    text-decoration: none;
+  }
   
   ${props => props.$isActive && css`
     background: hsl(224, 98%, 58%);
-    color: white;
+    color: white !important;
     
     &:hover {
       background: hsl(224, 98%, 58%);
+    }
+    
+    &:visited,
+    &:link {
+      color: white !important;
     }
   `}
   
@@ -46,32 +61,4 @@ const NavLinkWrapper = styled.div<StyledNavLinkProps>`
     animation: ${progress} 2s infinite ease-in-out;
     animation-delay: 200ms;
   `}
-  
-  &:hover {
-    background: #e3e3e3;
-  }
 `;
-
-const InvisibleLink = styled(Link)`
-  text-decoration: none !important;
-  color: inherit !important;
-  display: contents;
-  
-  &:hover,
-  &:visited,
-  &:link,
-  &:active {
-    text-decoration: none !important;
-    color: inherit !important;
-  }
-`;
-
-export const StyledNavLink = ({ $isActive, $isPending, to, children, ...props }: StyledNavLinkProps & { to: string; children: React.ReactNode }) => {
-  return (
-    <InvisibleLink to={to} {...props}>
-      <NavLinkWrapper $isActive={$isActive} $isPending={$isPending}>
-        {children}
-      </NavLinkWrapper>
-    </InvisibleLink>
-  );
-};

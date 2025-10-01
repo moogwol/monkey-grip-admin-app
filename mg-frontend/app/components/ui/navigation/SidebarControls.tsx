@@ -7,6 +7,7 @@ export const SidebarControls = styled.div`
   padding-top: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e3e3e3;
+  order: 0;
 
   form {
     position: relative;
