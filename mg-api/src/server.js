@@ -7,6 +7,10 @@ require('dotenv').config();
 const membersRouter = require('./routes/contacts'); // Members routes (renamed from contacts)
 const couponsRouter = require('./routes/coupons');
 const memberCouponsRouter = require('./routes/member-coupons');
+const imagesRouter = require('./routes/images'); // Image upload/serve routes
+
+// Import MinIO config
+// const { ensureBuckets } = require('./config/minio'); // Temporarily disabled
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +25,13 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use('/api/members', membersRouter);
 app.use('/api/coupons', couponsRouter);
 app.use('/api/members', memberCouponsRouter); // Member-specific coupon routes
+app.use('/api/images', imagesRouter); // Image upload/serve routes
+
+console.log('🛣️ Routes registered:');
+console.log('  - /api/members (members router)');
+console.log('  - /api/coupons (coupons router)');
+console.log('  - /api/members (member-coupons router)');
+console.log('  - /api/images (images router)');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -66,10 +77,14 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🥋 BJJ Club Management API server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🗄️  Database: ${process.env.DB_NAME || 'bjj_club_db'}`);
+  
+  // Initialize MinIO buckets
+  // console.log('🪣 Initializing MinIO buckets...');
+  // await ensureBuckets();
 });
 
 // Graceful shutdown
