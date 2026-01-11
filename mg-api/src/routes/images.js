@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const {upload} = require('../middleware/upload');
 const imageService = require('../services/imageService');
-const {minioClient} = require('../config/minio');
+const path = require('path');
+const fs = require('fs');
 
 // Simple test route
 router.get('/test', (req, res) => {
@@ -70,8 +71,20 @@ router.get('/serve/:bucket/:filename', async (req, res) => {
         const { bucket, filename } = req.params;
         console.log(`📂 Fetching: ${bucket}/${filename}`);
 
-        // Get object from MinIO
-        const stream = await minioClient.getObject(bucket, filename);
+        const basePath = process.env.IMAGE_STORAGE_PATH || '/data/images';
+        const filePath = path.join(basePath, bucket, filename);
+
+        // Prevent path traversal
+        const resolved = path.resolve(filePath);
+        if (!resolved.startsWith(path.resolve(basePath))) {
+            console.error('❌ Invalid file path attempt:', filePath);
+            return res.status(400).json({ error: 'Invalid file path' });
+        }
+
+        if (!fs.existsSync(resolved)) {
+            console.error('❌ File not found:', resolved);
+            return res.status(404).json({ error: 'Image not found' });
+        }
 
         // Set appropriate headers
         res.set({
@@ -79,8 +92,12 @@ router.get('/serve/:bucket/:filename', async (req, res) => {
             'Cache-Control': 'public, max-age=86400' // 24 hours
         });
 
-        console.log('✅ Streaming file to response');
-        // Stream file to response
+        console.log('✅ Streaming file to response:', resolved);
+        const stream = fs.createReadStream(resolved);
+        stream.on('error', (err) => {
+            console.error('Stream error:', err);
+            res.status(404).end();
+        });
         stream.pipe(res);
 
     } catch (error) {

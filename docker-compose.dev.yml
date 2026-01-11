@@ -26,15 +26,11 @@ services:
       - DB_NAME=bjj_club_db
       - DB_USER=bjjuser
       - DB_PASSWORD=bjjpass
-      - MINIO_ENDPOINT=mg-object-storage
-      - MINIO_PORT=9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - MINIO_USE_SSL=false
-      - MINIO_PUBLIC_URL=http://localhost:9000  # For development
+      - IMAGE_STORAGE_PATH=/data/images
     volumes:
       - ./mg-api:/app
       - /app/node_modules
+      - /var/images:/data/images
     depends_on:
       - db
     command: ["npm", "run", "dev"]
@@ -54,17 +50,7 @@ services:
       - mg-api
     command: ["npm", "run", "dev"]
 
-  mg-object-storage:
-    image: minio/minio:latest
-    ports:
-      - "9000:9000" # MinIO API
-      - "9001:9001" # MinIO console web UI
-    environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
-    volumes:
-      - minio-data:/data # Persist data
-    command: server /data --console-address ":9001" # Start MinIO server with console  
+
 
   dd-admin:
     image: adminer:latest
@@ -75,4 +61,4 @@ services:
 
 volumes:
   db-data:
-  minio-data:
+  images-data:

@@ -1,0 +1,65 @@
+# Docker Compose file for BJJ club management app
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: bjjuser
+      POSTGRES_PASSWORD: bjjpass
+      POSTGRES_DB: bjj_club_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./mg-backend/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro
+      - ./mg-backend/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
+    ports:
+      - "5432:5432"  
+
+  mg-api:
+    build:
+      context: ./mg-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=bjj_club_db
+      - DB_USER=bjjuser
+      - DB_PASSWORD=bjjpass
+      - IMAGE_STORAGE_PATH=/data/images
+    volumes:
+      - ./mg-api:/app
+      - /app/node_modules
+      - /var/images:/data/images
+    depends_on:
+      - db
+    command: ["npm", "start"]
+    restart: always
+
+  mg-frontend:
+    build:
+      context: ./mg-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://mg-api:3000/api
+    volumes:
+      - ./mg-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - mg-api
+    command: ["npm", "run", "dev"]
+
+
+
+  dd-admin:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db  
+
+volumes:
+  db-data:
+  images-data:
