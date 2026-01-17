@@ -16,7 +16,13 @@ class ImageService {
     ];
 
     for (const d of dirs) {
-      await fs.mkdir(d, { recursive: true }).catch(() => {});
+      try {
+        await fs.mkdir(d, { recursive: true });
+        console.log(`📁 Ensured directory: ${d}`);
+      } catch (err) {
+        console.error(`❌ Failed to create directory ${d}:`, err);
+        throw err;
+      }
     }
   }
 

@@ -17,6 +17,9 @@ COPY . .
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
+# Create image storage directory and set ownership
+RUN mkdir -p /data/images && chown -R nodejs:nodejs /data/images
+
 # Change ownership of the /app directory to the nodejs user
 RUN chown -R nodejs:nodejs /app
 USER nodejs

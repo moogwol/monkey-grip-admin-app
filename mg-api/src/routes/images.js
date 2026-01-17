@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {upload} = require('../middleware/upload');
 const imageService = require('../services/imageService');
+const Member = require('../models/Contact');
 const path = require('path');
 const fs = require('fs');
 
@@ -41,11 +42,13 @@ router.post('/members/:memberId/profile-image',
                 memberId
             );
 
-            // Update member record in the db
+            // Generate public URL and update member record in the db
             const imageUrl = imageService.generatePublicUrl(
                 uploadedFile.medium.bucket,
                 uploadedFile.medium.filename
             );
+
+            await Member.updateProfile(memberId, { avatar_url: imageUrl });
 
             res.json({
                 success: true,
