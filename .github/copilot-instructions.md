@@ -1,159 +1,57 @@
-# Copilot Instructions for contacts-app
+# Copilot Instructions for Monkey Grip Admin App
 
 ## Project Overview
-This is a complete full-stack contacts management application built with modern technologies and designed as a reusable template for client projects.
+A full-stack BJJ club management system with member records, class coupons, and image uploads.
 
-**Technology Stack:**
-- **Backend API**: Node.js + Express.js with TypeScript-style validation
-- **Database**: PostgreSQL 17 with Docker
-- **Frontend**: React Router v7 with TypeScript and Vite
-- **Containerization**: Docker Compose for full-stack orchestration
-- **API Documentation**: Complete REST API documentation
+- Backend: Node.js + Express + PostgreSQL 17
+- Frontend: React Router v7 (SSR) + TypeScript + Vite
+- Orchestration: Docker Compose (dev and prod)
+- Images: sharp + local volume file storage (MinIO removed)
 
 ## Architecture & Structure
+- Backend API at `/api/*` in [mg-api/src](mg-api/src):
+	- Routers: [routes/contacts.js](mg-api/src/routes/contacts.js) (`/api/members`), [routes/coupons.js](mg-api/src/routes/coupons.js), [routes/member-coupons.js](mg-api/src/routes/member-coupons.js), [routes/images.js](mg-api/src/routes/images.js)
+	- Models: [models/Contact.js](mg-api/src/models/Contact.js), [models/ClassCoupon.js](mg-api/src/models/ClassCoupon.js)
+	- Services: [services/imageService.js](mg-api/src/services/imageService.js) with atomic writes + resized variants
+	- Entry: [src/server.js](mg-api/src/server.js) registers routes and health endpoint
+	- DB: [src/database.js](mg-api/src/database.js) wraps pg.Pool
+- Database schema and seed in [mg-backend](mg-backend): [init-db.sql](mg-backend/init-db.sql), [seed-data.sql](mg-backend/seed-data.sql)
+- Frontend in [mg-frontend](mg-frontend):
+	- API client: [app/api.ts](mg-frontend/app/api.ts) with `ApiResponse<T>` and `VITE_API_URL`
+	- File-based routes: [routes](mg-frontend/routes) (e.g., `_layout.members.$memberId.tsx` patterns)
+	- SSR config: [react-router.config.ts](mg-frontend/react-router.config.ts)
 
-### Backend (`contacts-api/`)
-- **Express.js API** with full CRUD operations
-- **PostgreSQL integration** using `pg` library
-- **Input validation** with `express-validator`
-- **CORS and security** with helmet middleware
-- **RESTful endpoints** at `/api/contacts`
-- **Health check** endpoint at `/health`
+## Data Flow & Key Patterns
+- Frontend calls the API via `apiClient` in [app/api.ts](mg-frontend/app/api.ts). Responses follow `{ success, data, message, errors?, count? }`.
+- Members: CRUD at `/api/members`; soft-delete via `DELETE` sets `active=false`. Filters supported (e.g., `belt_rank`, `payment_status`). See [routes/contacts.js](mg-api/src/routes/contacts.js) and [models/Contact.js](mg-api/src/models/Contact.js).
+- Coupons: CRUD + usage (`PATCH /api/coupons/:id/use`) + stats and expiring summaries. See [routes/coupons.js](mg-api/src/routes/coupons.js).
+- Member coupons: `/api/members/:id/coupons` and summary. See [routes/member-coupons.js](mg-api/src/routes/member-coupons.js).
+- Images: `POST /api/images/members/:memberId/profile-image` via `multer.memoryStorage` → sharp resized files written under `IMAGE_STORAGE_PATH` and served by `/api/images/serve/:bucket/:filename`. See [middleware/upload.js](mg-api/src/middleware/upload.js) and [services/imageService.js](mg-api/src/services/imageService.js).
 
-### Frontend (`contacts-frontend/`)
-- **React Router v7** with file-system routing
-- **TypeScript** for type safety
-- **Vite** for fast development and building
-- **Custom API client** with error handling
-- **Real-time search** with debounced filtering
-- **CRUD interface** for contact management
-
-### Database (`contacts-backend/`)
-- **PostgreSQL schema** with initialization scripts
-- **Seed data** for development
-- **Docker volume persistence**
-
-### Docker Setup
-- **Multi-container** orchestration
-- **Internal networking** between services
-- **Environment configuration** for different modes
-- **Volume persistence** for database
-
-## Key Features Implemented
-
-### API Endpoints
-- `GET /api/contacts` - List all contacts (with search)
-- `GET /api/contacts/:id` - Get single contact
-- `POST /api/contacts` - Create new contact
-- `PUT /api/contacts/:id` - Update contact
-- `DELETE /api/contacts/:id` - Delete contact
-- `PATCH /api/contacts/:id/favorite` - Toggle favorite status
-
-### Frontend Features
-- **Contact list** with search functionality
-- **Contact detail** views with edit/delete actions
-- **Form validation** and error handling
-- **Loading states** and user feedback
-- **Responsive design** with sidebar navigation
-- **404 error handling** with back navigation
+## Conventions
+- Validation: express-validator in routers; numeric `id` validated with regex (`^\d+$`).
+- Models encapsulate SQL with prepared statements; avoid raw concatenation.
+- Soft deletes for members; use dedicated PATCH routes for domain actions (`promote`, `payment-status`).
+- Frontend routes use React Router v7 file naming for layouts (`_layout.*`) and dynamic segments (`$memberId`).
 
 ## Development Workflow
+- Docker (recommended for full stack):
+	- Dev: `docker compose -f docker-compose.dev.yml up`
+	- Ports: API 3000, Frontend 5173, Postgres 5432, Adminer 8080
+	- Env: Frontend uses `VITE_API_URL=http://mg-api:3000/api`; API uses `DB_*` and `IMAGE_STORAGE_PATH`.
+- Local without Docker:
+	- API: `cd mg-api && npm install && npm run dev`
+	- Frontend: `cd mg-frontend && npm install && npm run dev`
+	- Build/start frontend: `npm run build` then `npm start` (serves build/server & build/client).
+- Quick API smoke test: [test-api.sh](test-api.sh) exercises `/health` and image upload/serve.
 
-### Getting Started
-```bash
-# Start all services
-docker compose up
+## Integration Points
+- Database tables: see [init-db.sql](mg-backend/init-db.sql) for `members` and `class_coupons` schema, indexes, and constraints.
+- Adminer available at `http://localhost:8080` (service `dd-admin`) in Compose.
+- Images are stored in the filesystem under `IMAGE_STORAGE_PATH`. MinIO was removed; [config/minio.js](mg-api/src/config/minio.js) is a placeholder and not used.
 
-# Access frontend: http://localhost:5173
-# Access API: http://localhost:3000
-# Database: postgres://localhost:5432
-```
+## Extending the Project (examples)
+- Add a new API endpoint: create a router in [mg-api/src/routes](mg-api/src/routes), register it in [src/server.js](mg-api/src/server.js), validate inputs with express-validator, and implement queries in a model under [mg-api/src/models](mg-api/src/models).
+- Add a frontend view: create a file in [mg-frontend/routes](mg-frontend/routes) following React Router v7 conventions; use `apiClient` from [app/api.ts](mg-frontend/app/api.ts).
 
-### Project Structure
-```
-contacts-app/
-├── contacts-api/          # Express.js API
-│   ├── src/
-│   │   ├── server.js      # Main server
-│   │   ├── database.js    # DB connection
-│   │   ├── models/        # Data models
-│   │   └── routes/        # API routes
-│   └── Dockerfile
-├── contacts-frontend/     # React Router app
-│   ├── app/
-│   │   ├── api.ts         # API client
-│   │   ├── data.ts        # Data layer
-│   │   └── routes/        # File-system routes
-│   └── Dockerfile
-├── contacts-backend/      # Database setup
-│   ├── init-db.sql       # Schema creation
-│   └── seed-data.sql     # Sample data
-├── docker-compose.yml    # Service orchestration
-└── api-docs.txt         # API documentation
-```
-
-## Template Usage Guidelines
-
-### For AI Agents
-- **Database-first approach**: Modify `init-db.sql` for new data models
-- **API-driven development**: Update routes in `contacts-api/src/routes/`
-- **Type-safe frontend**: Maintain TypeScript interfaces in `app/api.ts`
-- **Docker consistency**: Keep multi-container architecture
-- **File-system routing**: Follow React Router v7 conventions in `app/routes/`
-
-### Customization for Clients
-1. **Rename entities**: Replace "contacts" with client's domain (users, products, etc.)
-2. **Update data model**: Modify database schema and API interfaces
-3. **Rebrand frontend**: Update colors, logos, and terminology
-4. **Add client features**: Extend with domain-specific functionality
-5. **Deploy**: Use existing Docker setup for production
-
-### Security Considerations
-- **Environment variables**: Use `.env` files for sensitive config
-- **API validation**: All inputs validated with express-validator
-- **CORS configuration**: Properly configured for production
-- **Database security**: Connection pooling and prepared statements
-
-## Development Commands
-
-### Backend Development
-```bash
-cd contacts-api
-npm install
-npm run dev  # Development with nodemon
-```
-
-### Frontend Development
-```bash
-cd contacts-frontend  
-npm install
-npm run dev  # Vite dev server
-```
-
-### Database Management
-```bash
-# Access database
-docker compose exec postgres psql -U contactsuser -d contactsdb
-
-# Reset database
-docker compose down -v
-docker compose up
-```
-
-## Best Practices Implemented
-- **RESTful API design** with proper HTTP status codes
-- **Error boundaries** and 404 handling in React
-- **Loading states** and user feedback
-- **Form validation** on both client and server
-- **Docker networking** with service discovery
-- **TypeScript** for type safety across the stack
-- **Modular architecture** for easy customization
-
-## Deployment Ready
-- **Production Docker builds** optimized for performance
-- **Environment configuration** for different stages
-- **Health checks** for monitoring
-- **Volume persistence** for data safety
-- **Internal networking** for security
-
-This template provides a solid foundation for building modern full-stack web applications with professional development practices and deployment readiness.
+If any workflow or pattern is unclear or missing, tell me which sections to refine and I’ll iterate.

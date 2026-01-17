@@ -9,8 +9,7 @@ const couponsRouter = require('./routes/coupons');
 const memberCouponsRouter = require('./routes/member-coupons');
 const imagesRouter = require('./routes/images'); // Image upload/serve routes
 
-// Import MinIO config
-// const { ensureBuckets } = require('./config/minio'); // Temporarily disabled
+// Image storage is file-based; MinIO removed
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -82,9 +81,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🗄️  Database: ${process.env.DB_NAME || 'bjj_club_db'}`);
   
-  // Initialize MinIO buckets
-  // console.log('🪣 Initializing MinIO buckets...');
-  // await ensureBuckets();
+  // File-based image storage initialized via IMAGE_STORAGE_PATH
 });
 
 // Graceful shutdown

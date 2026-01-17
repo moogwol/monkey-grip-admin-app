@@ -13,6 +13,7 @@ A RESTful API for managing BJJ club members and class coupons built with Node.js
 - Health check endpoint
 - Security middleware (Helmet, CORS)
 - Dockerized for easy deployment
+- Image uploads and serving via local filesystem (sharp-resized variants)
 
 ## API Endpoints
 
@@ -39,6 +40,13 @@ A RESTful API for managing BJJ club members and class coupons built with Node.js
 | PUT | `/coupons/:id` | Update coupon |
 | DELETE | `/coupons/:id` | Delete coupon |
 | PATCH | `/coupons/:id/use` | Use a class from coupon |
+
+### Image Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/images/test` | Verify images router is reachable |
+| POST | `/images/members/:memberId/profile-image` | Upload member profile image (multipart form with `profileImage`) |
+| GET | `/images/serve/:bucket/:filename` | Serve stored image file (thumbnail/medium/full variants) |
 
 ### Health Check
 | Method | Endpoint | Description |
@@ -83,6 +91,8 @@ All API responses follow this format:
 - `DB_NAME` - Database name
 - `DB_USER` - Database user
 - `DB_PASSWORD` - Database password
+- `IMAGE_STORAGE_PATH` - Base filesystem path for storing images (default: `/data/images`)
+- `API_BASE_URL` - Optional base URL for generating public image URLs (used by `imageService`)
 
 ## Development
 
@@ -98,6 +108,25 @@ npm install
 ### Run locally
 ```bash
 npm run dev
+```
+
+### Images: Upload and Serve (local storage)
+Images are stored on the server filesystem under `IMAGE_STORAGE_PATH`. Uploads are processed with `sharp` to produce:
+- `thumbnails` (150x150), `member-images` medium (400x400), and full (800x800)
+
+Example using curl:
+
+```bash
+# Health
+curl -s http://localhost:3000/health | jq .
+
+# Upload a profile image for member ID 20
+curl -s -X POST \
+  -F "profileImage=@/path/to/local-image.jpg" \
+  http://localhost:3000/api/images/members/20/profile-image | jq .
+
+# Then serve the image (replace bucket/filename from upload response)
+curl -I "http://localhost:3000/api/images/serve/member-images/medium_<FILENAME>.jpg"
 ```
 
 ### Run with Docker
