@@ -19,6 +19,7 @@ services:
       context: ./mg-api
     ports:
       - "3000:3000"
+    user: "1001:1001"
     environment:
       - NODE_ENV=production
       - DB_HOST=db
@@ -30,7 +31,7 @@ services:
     volumes:
       - ./mg-api:/app
       - /app/node_modules
-      - /var/images:/data/images
+      - images-data:/data/images
     depends_on:
       - db
     command: ["npm", "start"]
@@ -51,14 +52,6 @@ services:
       - mg-api
     command: ["npm", "run", "dev"]
 
-
-
-  dd-admin:
-    image: adminer:latest
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db  
 
 volumes:
   db-data:
