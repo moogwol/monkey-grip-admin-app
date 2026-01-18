@@ -21,9 +21,42 @@ import {
 // Action to submit new member to the database
 export async function action({ request }: Route.ActionArgs) {
     const formData = await request.formData();
-    const newMemberData = Object.fromEntries(formData);
+
+    // Extract image file before converting to object
+    const profileImageFile = formData.get('profileImage') as File | null;
+
+    // Create member data object for all fields except the image
+    const newMemberData = Object.fromEntries(
+        Array.from(formData.entries()).filter(([key]) => key !== 'profileImage')
+    );
     console.log("New member data submitted:", newMemberData);
+
+    // Create the member
     const createdMember = await createMember(newMemberData);
+
+    // Upload the image if provided
+    if (profileImageFile && profileImageFile.size > 0) {
+        const imageFormData = new FormData();
+        imageFormData.append('profileImage', profileImageFile);
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const uploadResponse = await fetch(
+                `${apiUrl}/images/members/${createdMember.id}/profile-image`,
+                {
+                    method: 'POST',
+                    body: imageFormData
+                }
+            );
+
+            if (!uploadResponse.ok) {
+                console.warn('Image upload failed:', await uploadResponse.text());
+            }
+        } catch (error) {
+            console.warn('Error uploading image:', error);
+        }
+    }
+
     return redirect(`/members/${createdMember.id}`); // Redirect to the new member's detail page
 }
 
@@ -34,7 +67,7 @@ export default function NewMember() {
         <div>
             <h2>New Member</h2>
             <p>This is the page to add a new member. Implement the form here.</p>
-            <NewMemberForm method="post">
+            <NewMemberForm method="post" encType="multipart/form-data">
                 <FormField>
                     <FormLabel htmlFor="first_name">First Name</FormLabel>
                     <FormInput type="text" name="first_name" id="first_name" required />
@@ -46,8 +79,8 @@ export default function NewMember() {
                 </FormField>
 
                 <FormField>
-                    <FormLabel htmlFor="avatar_url">Avatar URL</FormLabel>
-                    <FormInput type="url" name="avatar_url" id="avatar_url" required />
+                    <FormLabel htmlFor="avatar_url">Choose Image</FormLabel>
+                    <FormInput type="file" name="profileImage" id="avatar_url" required />
                 </FormField>
 
                 <FormRow>
@@ -115,12 +148,12 @@ export default function NewMember() {
                     </FormGroup>
                 </FormRow>
 
-                    <Actions>
-                        <SubmitButton type="submit">Create Member</SubmitButton>
-                        <CancelButton type="button" onClick={() => navigate(-1)}>
-                            Cancel
-                        </CancelButton>
-                    </Actions>
+                <Actions>
+                    <SubmitButton type="submit">Create Member</SubmitButton>
+                    <CancelButton type="button" onClick={() => navigate(-1)}>
+                        Cancel
+                    </CancelButton>
+                </Actions>
 
             </NewMemberForm>
         </div>

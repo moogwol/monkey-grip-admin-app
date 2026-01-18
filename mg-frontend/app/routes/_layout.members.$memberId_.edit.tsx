@@ -43,7 +43,14 @@ export async function loader({ params }: Route.LoaderArgs) {
 export async function action({ request, params }: Route.ActionArgs) {
     console.log("ACTION CALLED!");
     const formData = await request.formData();
-    const rawData = Object.fromEntries(formData);
+    
+    // Extract image file before converting to object
+    const profileImageFile = formData.get('profileImage') as File | null;
+
+    // Get raw form data as an object for all entries except the image
+    const rawData = Object.fromEntries(
+        Array.from(formData.entries()).filter(([key]) => key !== 'profileImage')
+    );
     
     // Convert the form data to proper types and handle empty strings
     const updatedMemberData: any = { ...rawData };
@@ -55,6 +62,34 @@ export async function action({ request, params }: Route.ActionArgs) {
             updatedMemberData[field] = null;
         }
     });
+
+    // Ensure numeric fields are numbers
+    if ('stripes' in updatedMemberData) {
+        const s = updatedMemberData.stripes as string;
+        updatedMemberData.stripes = s === '' ? 0 : Number(s);
+    }
+
+    // Upload the image if provided
+    if (profileImageFile && profileImageFile.size > 0) {
+        const imageFormData = new FormData();
+        imageFormData.append('profileImage', profileImageFile);
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const uploadResponse = await fetch(
+                `${apiUrl}/images/members/${params.memberId}/profile-image`,
+                {
+                    method: 'POST',
+                    body: imageFormData
+                }
+            );
+        } catch (error) {
+            console.warn('Error uploading image:', error);
+        }
+    }
+
+
+
     
     console.log("Updated member data submitted:", updatedMemberData);
     
@@ -83,14 +118,15 @@ export default function EditMember({ loaderData }: Route.ComponentProps) {
         <EditMemberContainer>
             <EditMemberTitle>Edit Member {member.first_name} {member.last_name}</EditMemberTitle>
 
-                <StyledForm method="post">
+                <StyledForm method="post" encType="multipart/form-data">
+
                     <FormField>
-                        <FormLabel htmlFor="avatar_url">Avatar URL</FormLabel>
+                        <FormLabel htmlFor="profileImage">Choose Image</FormLabel>
                         <FormInput 
-                            type="url" 
-                            name="avatar_url" 
-                            id="avatar_url"
-                            defaultValue={member.avatar_url || ''}
+                            type="file" 
+                            name="profileImage" 
+                            id="profileImage"
+                            accept="image/*"
                         />
                     </FormField>
 
