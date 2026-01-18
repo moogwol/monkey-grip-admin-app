@@ -26,9 +26,19 @@ export async function action({ request }: Route.ActionArgs) {
     const profileImageFile = formData.get('profileImage') as File | null;
 
     // Create member data object for all fields except the image
-    const newMemberData = Object.fromEntries(
+    const rawData = Object.fromEntries(
         Array.from(formData.entries()).filter(([key]) => key !== 'profileImage')
     );
+    
+    // Convert empty strings to null for optional fields (email validation fails on empty string)
+    const newMemberData: any = { ...rawData };
+    const optionalFields = ['email', 'phone', 'date_of_birth'];
+    optionalFields.forEach(field => {
+        if (field in newMemberData && newMemberData[field] === '') {
+            delete newMemberData[field];
+        }
+    });
+    
     console.log("New member data submitted:", newMemberData);
 
     // Create the member
@@ -80,7 +90,7 @@ export default function NewMember() {
 
                 <FormField>
                     <FormLabel htmlFor="avatar_url">Choose Image</FormLabel>
-                    <FormInput type="file" name="profileImage" id="avatar_url" required />
+                    <FormInput type="file" name="profileImage" id="avatar_url" />
                 </FormField>
 
                 <FormRow>
@@ -115,7 +125,7 @@ export default function NewMember() {
 
                 <FormField>
                     <FormLabel htmlFor="email">Email</FormLabel>
-                    <EmailInput name="email" id="email" required />
+                    <EmailInput name="email" id="email" />
                 </FormField>
 
                 <FormField>
