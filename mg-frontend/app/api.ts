@@ -96,8 +96,8 @@ export const apiClient = {
     });
   },
 
-  async updatePaymentStatus(id: string, status: 'current' | 'overdue' | 'cancelled'): Promise<ApiResponse<MemberRecord>> {
-    return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}/payment`, {
+  async updatePaymentStatus(id: string, status: 'paid' | 'overdue' | 'trial'): Promise<ApiResponse<MemberRecord>> {
+    return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}/payment-status`, {
       method: 'PATCH',
       body: JSON.stringify({ payment_status: status }),
     });

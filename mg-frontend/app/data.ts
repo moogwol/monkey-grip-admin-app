@@ -145,7 +145,7 @@ export async function promoteMember(id: string, newBelt: string, newStripes: num
   }
 }
 
-export async function updatePaymentStatus(id: string, status: 'current' | 'overdue' | 'cancelled') {
+export async function updatePaymentStatus(id: string, status: 'paid' | 'overdue' | 'trial') {
   try {
     const response = await apiClient.updatePaymentStatus(id, status);
     if (response.success && response.data) {

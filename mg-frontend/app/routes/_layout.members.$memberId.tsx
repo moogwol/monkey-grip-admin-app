@@ -1,6 +1,6 @@
 import { Form, useFetcher, useNavigate, redirect, Outlet } from "react-router";
 import type { Route } from "../+types/root";
-import { getMember, deleteMember, getMemberCoupons } from "../data";
+import { getMember, deleteMember, getMemberCoupons, updatePaymentStatus } from "../data";
 import {
   MemberProfile,
   MemberBanner,
@@ -14,6 +14,11 @@ import {
   MemberInfo,
   BeltGraphic,
   PaymentStatusBadge,
+  PaymentStatusSelector,
+  PaymentStatusSelect,
+  PaymentStatusLabel,
+  PaymentStatusForm,
+  PaymentStatusButton,
 } from "../components";
 
 
@@ -32,6 +37,17 @@ export async function loader({ params }: Route.LoaderArgs) {
   const coupons = await getMemberCoupons(memberId);
 
   return { member, coupons };
+}
+
+export async function action({ params, request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const newStatus = formData.get('payment_status') as 'paid' | 'overdue' | 'trial';
+  const memberId = params.memberId;
+  if (!memberId) {
+    throw new Response("Member ID is required", { status: 400 });
+  }
+  await updatePaymentStatus(memberId, newStatus);
+  return redirect(`/members/${memberId}`);
 }
 
 export default function Member({ loaderData }: Route.ComponentProps) {
@@ -60,6 +76,8 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     if (!Array.isArray(coupons)) return [];
     return coupons.filter((coupon: any) => coupon.classes_used >= coupon.classes_total);
   };
+
+
 
   return (
     <MemberProfile>
@@ -137,6 +155,30 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             </div>
           )}
         </MemberDetails>
+        <PaymentStatusSelector>
+          <PaymentStatusForm as="form" method="post">
+            <PaymentStatusLabel htmlFor="payment-status-select">Update Payment Status:</PaymentStatusLabel>
+            <PaymentStatusSelect
+              id="payment-status-select"
+              name="payment_status"
+              defaultValue={member.payment_status}>
+              {/* <option value="paid">Bono anterior</option>
+              <option value="pending">1/2 mes</option>
+              <option value="overdue">45 mañana</option>
+              <option value="overdue">45 tarde</option>
+              <option value="overdue">55 full</option>
+              <option value="overdue">60 full</option>
+              <option value="overdue">Bono 65</option>
+              <option value="overdue">Día suelto</option>
+              <option value="overdue">Sin pagar</option>
+              <option value="overdue">Sin pagar</option> */}
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+              <option value="trial">Trial</option>
+            </PaymentStatusSelect>
+            <PaymentStatusButton type="submit">Update</PaymentStatusButton>
+          </PaymentStatusForm>
+        </PaymentStatusSelector>
 
         <div className="coupons-section">
           <h3>Class Coupons</h3>

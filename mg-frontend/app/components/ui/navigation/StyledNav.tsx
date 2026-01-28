@@ -10,11 +10,14 @@ export const StyledNav = styled.nav`
     padding: 0;
     margin: 0;
     list-style: none !important;
+    list-style-type: none !important;
   }
   
   li {
     margin: 0.25rem 0;
     list-style: none !important;
+    list-style-type: none !important;
+    margin-left: 0 !important;
   }
   
   p {
