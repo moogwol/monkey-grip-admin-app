@@ -41,7 +41,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const newStatus = formData.get('payment_status') as 'paid' | 'overdue' | 'trial';
+  const newStatus = formData.get('payment_status') as
+    'outstanding_coupon' |
+    'half_month' |
+    'morning_45' |
+    'afternoon_45' |
+    'full_55' |
+    'full_60' |
+    'coupon_65' |
+    'coupon_70' |
+    'overdue';
   const memberId = params.memberId;
   if (!memberId) {
     throw new Response("Member ID is required", { status: 400 });
@@ -162,19 +171,15 @@ export default function Member({ loaderData }: Route.ComponentProps) {
               id="payment-status-select"
               name="payment_status"
               defaultValue={member.payment_status}>
-              {/* <option value="paid">Bono anterior</option>
-              <option value="pending">1/2 mes</option>
-              <option value="overdue">45 mañana</option>
-              <option value="overdue">45 tarde</option>
-              <option value="overdue">55 full</option>
-              <option value="overdue">60 full</option>
-              <option value="overdue">Bono 65</option>
-              <option value="overdue">Día suelto</option>
+              <option value="outstanding_coupon">Bono anterior</option>
+              <option value="half_month">1/2 mes</option>
+              <option value="morning_45">45 mañana</option>
+              <option value="afternoon_45">45 tarde</option>
+              <option value="full_55">55 full</option>
+              <option value="full_60">60 full</option>
+              <option value="coupon_65">Bono 65</option>
+              <option value="coupon_70">Día suelto</option>
               <option value="overdue">Sin pagar</option>
-              <option value="overdue">Sin pagar</option> */}
-              <option value="paid">Paid</option>
-              <option value="overdue">Overdue</option>
-              <option value="trial">Trial</option>
             </PaymentStatusSelect>
             <PaymentStatusButton type="submit">Update</PaymentStatusButton>
           </PaymentStatusForm>

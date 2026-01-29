@@ -17,7 +17,16 @@ export type MemberMutation = {
   stripes?: number;
   last_promotion_date?: string;
   payment_class?: 'evenings' | 'mornings' | 'both' | 'coupon';
-  payment_status?: 'paid' | 'overdue' | 'trial';
+  payment_status?:
+    'outstanding_coupon' |
+    'half_month' |
+    'morning_45' |
+    'afternoon_45' |
+    'full_55' |
+    'full_60' |
+    'coupon_65' |
+    'coupon_70' |
+    'overdue';
   active?: boolean;
 };
 
@@ -62,7 +71,7 @@ export async function createEmptyMember() {
       email: `member${timestamp}@example.com`,
       belt_rank: 'white',
       stripes: 0,
-      payment_status: 'trial',
+      payment_status: 'overdue',
       payment_class: 'evenings',
       active: true,
     });
@@ -145,7 +154,17 @@ export async function promoteMember(id: string, newBelt: string, newStripes: num
   }
 }
 
-export async function updatePaymentStatus(id: string, status: 'paid' | 'overdue' | 'trial') {
+export async function updatePaymentStatus(id: string, status: 
+  'outstanding_coupon' |
+    'half_month' |
+    'morning_45' |
+    'afternoon_45' |
+    'full_55' |
+    'full_60' |
+    'coupon_65' |
+    'coupon_70' |
+    'overdue'
+) {
   try {
     const response = await apiClient.updatePaymentStatus(id, status);
     if (response.success && response.data) {

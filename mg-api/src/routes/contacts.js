@@ -42,10 +42,20 @@ const validateMember = [
     .optional()
     .isIn(['evenings', 'mornings', 'both', 'coupon'])
     .withMessage('Payment class must be: evenings, mornings, both, or coupon'),
-  body('payment_status')
-    .optional()
-    .isIn(['paid', 'overdue', 'trial'])
-    .withMessage('Payment status must be: paid, overdue, or trial'),
+    body('payment_status')
+      .optional()
+      .isIn([
+        'outstanding_coupon',
+        'half_month',
+        'morning_45',
+        'afternoon_45',
+        'full_55',
+        'full_60',
+        'coupon_65',
+        'coupon_70',
+        'overdue'
+      ])
+      .withMessage('Payment status must be one of: outstanding_coupon, half_month, morning_45, afternoon_45, full_55, full_60, coupon_65, coupon_70, overdue'),
   body('active')
     .optional()
     .isBoolean()
@@ -317,10 +327,20 @@ router.patch('/:id/payment-status', async (req, res) => {
       });
     }
 
-    if (!['paid', 'overdue', 'trial'].includes(payment_status)) {
+    if (![
+      'outstanding_coupon',
+      'half_month',
+      'morning_45',
+      'afternoon_45',
+      'full_55',
+      'full_60',
+      'coupon_65',
+      'coupon_70',
+      'overdue'
+    ].includes(payment_status)) {
       return res.status(400).json({
         success: false,
-        message: 'Payment status must be: paid, overdue, or trial'
+        message: 'Payment status must be one of: outstanding_coupon, half_month, morning_45, afternoon_45, full_55, full_60, coupon_65, coupon_70, overdue'
       });
     }
 

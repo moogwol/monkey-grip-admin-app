@@ -24,7 +24,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ async function apiRequest<T>(
 
   try {
     const response = await fetch(url, config);
-    
+
     if (!response.ok) {
       let errorData;
       try {
@@ -96,7 +96,17 @@ export const apiClient = {
     });
   },
 
-  async updatePaymentStatus(id: string, status: 'paid' | 'overdue' | 'trial'): Promise<ApiResponse<MemberRecord>> {
+  async updatePaymentStatus(id: string, status:
+    'outstanding_coupon' |
+    'half_month' |
+    'morning_45' |
+    'afternoon_45' |
+    'full_55' |
+    'full_60' |
+    'coupon_65' |
+    'coupon_70' |
+    'overdue'
+  ): Promise<ApiResponse<MemberRecord>> {
     return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}/payment-status`, {
       method: 'PATCH',
       body: JSON.stringify({ payment_status: status }),
@@ -169,7 +179,16 @@ export interface MemberRecord {
   stripes: number;
   last_promotion_date?: string;
   payment_class: 'evenings' | 'mornings' | 'both' | 'coupon';
-  payment_status: 'paid' | 'overdue' | 'trial';
+  payment_status: 
+    'outstanding_coupon' |
+    'half_month' |
+    'morning_45' |
+    'afternoon_45' |
+    'full_55' |
+    'full_60' |
+    'coupon_65' |
+    'coupon_70' |
+    'overdue';
   active: boolean;
   created_at: string;
 }

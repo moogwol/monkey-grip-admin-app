@@ -20,7 +20,7 @@ export const PaymentStatus = styled.div`
   align-items: center;
 `;
 
-export const PaymentStatusBadge = styled.div<{ $status: 'current' | 'overdue' | 'suspended' | 'paid' | 'trial' }>`
+export const PaymentStatusBadge = styled.div<{ $status: 'outstanding_coupon' | 'half_month' | 'morning_45' | 'afternoon_45' | 'full_55' | 'full_60' | 'coupon_65' | 'coupon_70' | 'overdue' }>`
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -32,11 +32,16 @@ export const PaymentStatusBadge = styled.div<{ $status: 'current' | 'overdue' | 
   
   background-color: ${props => {
     switch (props.$status) {
-      case 'current': return '#28a745';
-      case 'paid': return '#28a745';
-      case 'trial': return '#71e3ffff';
       case 'overdue': return '#ff0707ff';
-      case 'suspended': return '#dc3545';
+      case 'half_month': return '#ffc107';
+      case 'outstanding_coupon':
+      case 'morning_45':
+      case 'afternoon_45':
+      case 'full_55':
+      case 'full_60':
+      case 'coupon_65':
+      case 'coupon_70':
+        return '#28a745';
       default: return '#6c757d';
     }
   }};
