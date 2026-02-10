@@ -8,9 +8,12 @@ services:
       POSTGRES_PASSWORD: bjjpass
       POSTGRES_DB: bjj_club_db
     volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./mg-backend/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro
-      - ./mg-backend/seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql:ro
+      - ./mg-backend/01-init-members.sql:/docker-entrypoint-initdb.d/01-init-members.sql:ro
+      - ./mg-backend/02-init-class-coupons.sql:/docker-entrypoint-initdb.d/02-init-class-coupons.sql:ro
+      - ./mg-backend/03-membership_plans.sql:/docker-entrypoint-initdb.d/03-membership_plans.sql:ro
+      - ./mg-backend/04-init-member-payments.sql:/docker-entrypoint-initdb.d/04-init-member-payments.sql:ro
+      - ./mg-backend/05-init-indexes.sql:/docker-entrypoint-initdb.d/05-init-indexes.sql:ro
+      - ./mg-backend/06-seed-data.sql:/docker-entrypoint-initdb.d/06-seed-data.sql:ro
     ports:
       - "5432:5432"  
 

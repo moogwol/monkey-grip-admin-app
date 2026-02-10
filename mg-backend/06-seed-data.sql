@@ -22,6 +22,13 @@ INSERT INTO members (first_name, last_name, email, phone, date_of_birth, belt_ra
 -- Inactive member (former student)
 ('Lucas', 'Barbosa', 'lucas.barbosa@email.com', '+1-555-0110', '1994-02-14', 'blue', 0, '2023-10-30', 'evenings', 'paid', false, 'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop&crop=face');
 
+-- Set up initial membership plans
+INSERT INTO membership_plans (name, price, description, active) VALUES
+('Evenings Only', 45.00, 'Access to all evening classes (6pm-7:30pm)', true),
+('Mornings Only', 45.00, 'Access to all morning classes (10am-11:30am)', true),
+('Full Access', 55.00, 'Unlimited access to all classes', true),
+('Coupon Package', 70.00, '10-class package for coupon-based members', true);
+
 -- Sample class coupons for coupon-based members and some regular members who bought packages
 INSERT INTO class_coupons (member_id, total_classes, classes_remaining, purchase_date, expiry_date, amount_paid, active, notes) VALUES 
 -- Ana's trial coupon (almost used up)
@@ -41,6 +48,14 @@ INSERT INTO class_coupons (member_id, total_classes, classes_remaining, purchase
 
 -- Professor Anderson's unlimited training coupon (instructor perk)
 (8, 50, 50, '2024-01-01', '2024-12-31', 0.00, true, 'Instructor training package - complimentary');
+
+-- Seed current month payment records
+INSERT INTO member_payments (member_id, month_date, payment_status, membership_plan_id, amount_paid, payment_date, notes) VALUES
+(1, date_trunc('month', CURRENT_DATE)::date, 'paid', (SELECT id FROM membership_plans WHERE name = 'Full Access'), 55.00, CURRENT_DATE, 'Seeded payment'),
+(2, date_trunc('month', CURRENT_DATE)::date, 'paid', (SELECT id FROM membership_plans WHERE name = 'Full Access'), 55.00, CURRENT_DATE, 'Seeded payment'),
+(3, date_trunc('month', CURRENT_DATE)::date, 'paid', (SELECT id FROM membership_plans WHERE name = 'Mornings Only'), 45.00, CURRENT_DATE, 'Seeded payment'),
+(4, date_trunc('month', CURRENT_DATE)::date, 'overdue', (SELECT id FROM membership_plans WHERE name = 'Evenings Only'), NULL, NULL, 'Seeded payment'),
+(5, date_trunc('month', CURRENT_DATE)::date, 'overdue', (SELECT id FROM membership_plans WHERE name = 'Full Access'), NULL, NULL, 'Seeded payment');
 
 -- Sample data showing different scenarios:
 -- Member 4 (Ana): Trial member with almost used coupon
