@@ -25,6 +25,7 @@ import {
     SearchSpinner,
     StyledNav,
     BeltGraphic,
+    PaymentStatusIcon,
 } from "../components";
 
 
@@ -116,7 +117,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                                             {member.first_name || member.last_name ? (
                                                 <>
                                                     {member.first_name} {member.last_name}
-
+                                                    <PaymentStatusIcon $status={member.payment_status} />
                                                     <BeltGraphic
                                                         beltColor={member.belt_rank}
                                                         stripes={member.stripes}
@@ -126,9 +127,6 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                                             ) : (
                                                 <i>No Name</i>
                                             )}
-                                            {/* {member.payment_status === 'overdue' ? (
-                                                <span className="overdue">⚠️</span>
-                                            ) : null} */}
                                         </StyledNavLink>
                                     </li>
                                 );
