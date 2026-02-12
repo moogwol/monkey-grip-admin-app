@@ -1,6 +1,6 @@
 import { Form, useFetcher, useNavigate, redirect, Outlet } from "react-router";
 import type { Route } from "../+types/root";
-import { getMember, deleteMember, getMemberCoupons, updatePaymentStatus } from "../data";
+import { getMember, deleteMember, getMemberCoupons, updatePaymentStatus, getPaymentPlans } from "../data";
 import {
   MemberProfile,
   MemberBanner,
@@ -33,24 +33,18 @@ export async function loader({ params }: Route.LoaderArgs) {
     throw new Response("Member not found", { status: 404 });
   }
 
-  // Load member's coupons as well
-  const coupons = await getMemberCoupons(memberId);
+  // Load member's coupons and active payment plans
+  const [coupons, plans] = await Promise.all([
+    getMemberCoupons(memberId),
+    getPaymentPlans(true)
+  ]);
 
-  return { member, coupons };
+  return { member, coupons, plans };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const newStatus = formData.get('payment_status') as
-    'outstanding_coupon' |
-    'half_month' |
-    'morning_45' |
-    'afternoon_45' |
-    'full_55' |
-    'full_60' |
-    'coupon_65' |
-    'coupon_70' |
-    'overdue';
+  const newStatus = formData.get('payment_status') as string;
   const memberId = params.memberId;
   if (!memberId) {
     throw new Response("Member ID is required", { status: 400 });
@@ -67,7 +61,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
   }
 
   const data = loaderData as any;
-  const { member, coupons = [] } = data;
+  const { member, coupons = [], plans = [] } = data;
   const navigate = useNavigate();
 
 
@@ -171,15 +165,15 @@ export default function Member({ loaderData }: Route.ComponentProps) {
               id="payment-status-select"
               name="payment_status"
               defaultValue={member.payment_status}>
-              <option value="outstanding_coupon">Bono anterior</option>
-              <option value="half_month">1/2 mes</option>
-              <option value="morning_45">45 mañana</option>
-              <option value="afternoon_45">45 tarde</option>
-              <option value="full_55">55 full</option>
-              <option value="full_60">60 full</option>
-              <option value="coupon_65">Bono 65</option>
-              <option value="coupon_70">Día suelto</option>
-              <option value="overdue">Sin pagar</option>
+              {Array.isArray(plans) && plans.length > 0 ? (
+                plans.map((plan: any) => (
+                  <option key={plan.id} value={plan.name}>
+                    {plan.name}{plan.price !== null && plan.price !== undefined ? ` -  €${plan.price}` : ''}
+                  </option>
+                ))
+              ) : (
+                <option value={member.payment_status}>{member.payment_status}</option>
+              )}
             </PaymentStatusSelect>
             <PaymentStatusButton type="submit">Update</PaymentStatusButton>
           </PaymentStatusForm>

@@ -97,20 +97,17 @@ export const apiClient = {
   },
 
   async updatePaymentStatus(id: string, status:
-    'outstanding_coupon' |
-    'half_month' |
-    'morning_45' |
-    'afternoon_45' |
-    'full_55' |
-    'full_60' |
-    'coupon_65' |
-    'coupon_70' |
-    'overdue'
+    string
   ): Promise<ApiResponse<MemberRecord>> {
     return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}/payment-status`, {
       method: 'PATCH',
       body: JSON.stringify({ payment_status: status }),
     });
+  },
+
+  async getPaymentPlans(activeOnly = true): Promise<ApiResponse<MembershipPlanRecord[]>> {
+    const query = activeOnly ? '?active=true' : '';
+    return apiRequest<ApiResponse<MembershipPlanRecord[]>>(`/payment-plans${query}`);
   },
 
   async getMemberStats(): Promise<ApiResponse<any>> {
@@ -179,18 +176,17 @@ export interface MemberRecord {
   stripes: number;
   last_promotion_date?: string;
   payment_class: 'evenings' | 'mornings' | 'both' | 'coupon';
-  payment_status: 
-    'outstanding_coupon' |
-    'half_month' |
-    'morning_45' |
-    'afternoon_45' |
-    'full_55' |
-    'full_60' |
-    'coupon_65' |
-    'coupon_70' |
-    'overdue';
+  payment_status: string;
   active: boolean;
   created_at: string;
+}
+
+export interface MembershipPlanRecord {
+  id: string;
+  name: string;
+  price: string | number | null;
+  description?: string | null;
+  active: boolean;
 }
 
 // Class Coupon type matching actual database schema

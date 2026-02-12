@@ -1,10 +1,21 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const db = require('../database');
 const Member = require('../models/Contact'); // Will be renamed to Member model
 
 const router = express.Router();
 
-// Validation middleware for member data
+const isValidPaymentStatus = async (status) => {
+  if (status === 'overdue') {
+    return true;
+  }
+
+  const result = await db.query(
+    'SELECT 1 FROM membership_plans WHERE active = true AND name = $1',
+    [status]
+  );
+  return result.rowCount > 0;
+};
 const validateMember = [
   body('first_name')
     .notEmpty()
@@ -42,20 +53,15 @@ const validateMember = [
     .optional()
     .isIn(['evenings', 'mornings', 'both', 'coupon'])
     .withMessage('Payment class must be: evenings, mornings, both, or coupon'),
-    body('payment_status')
-      .optional()
-      .isIn([
-        'outstanding_coupon',
-        'half_month',
-        'morning_45',
-        'afternoon_45',
-        'full_55',
-        'full_60',
-        'coupon_65',
-        'coupon_70',
-        'overdue'
-      ])
-      .withMessage('Payment status must be one of: outstanding_coupon, half_month, morning_45, afternoon_45, full_55, full_60, coupon_65, coupon_70, overdue'),
+  body('payment_status')
+    .optional()
+    .custom(async (value) => {
+      const valid = await isValidPaymentStatus(value);
+      if (!valid) {
+        throw new Error('Payment status must be an active plan name or overdue');
+      }
+      return true;
+    }),
   body('active')
     .optional()
     .isBoolean()
@@ -327,20 +333,11 @@ router.patch('/:id/payment-status', async (req, res) => {
       });
     }
 
-    if (![
-      'outstanding_coupon',
-      'half_month',
-      'morning_45',
-      'afternoon_45',
-      'full_55',
-      'full_60',
-      'coupon_65',
-      'coupon_70',
-      'overdue'
-    ].includes(payment_status)) {
+    const isValid = await isValidPaymentStatus(payment_status);
+    if (!isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Payment status must be one of: outstanding_coupon, half_month, morning_45, afternoon_45, full_55, full_60, coupon_65, coupon_70, overdue'
+        message: 'Payment status must be an active plan name or overdue'
       });
     }
 

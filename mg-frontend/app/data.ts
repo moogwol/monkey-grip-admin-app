@@ -3,7 +3,7 @@
 // Data layer for member and coupon management
 ////////////////////////////////////////////////////////////////////////////////
 
-import { apiClient, type MemberRecord, type ClassCouponRecord } from "./api";
+import { apiClient, type MemberRecord, type ClassCouponRecord, type MembershipPlanRecord } from "./api";
 
 // Member mutation type for frontend forms
 export type MemberMutation = {
@@ -17,16 +17,7 @@ export type MemberMutation = {
   stripes?: number;
   last_promotion_date?: string;
   payment_class?: 'evenings' | 'mornings' | 'both' | 'coupon';
-  payment_status?:
-    'outstanding_coupon' |
-    'half_month' |
-    'morning_45' |
-    'afternoon_45' |
-    'full_55' |
-    'full_60' |
-    'coupon_65' |
-    'coupon_70' |
-    'overdue';
+  payment_status?: string;
   active?: boolean;
 };
 
@@ -44,7 +35,7 @@ export type CouponMutation = {
 };
 
 // Export types for compatibility
-export type { MemberRecord, ClassCouponRecord };
+export type { MemberRecord, ClassCouponRecord, MembershipPlanRecord };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Member API wrapper functions
@@ -154,17 +145,7 @@ export async function promoteMember(id: string, newBelt: string, newStripes: num
   }
 }
 
-export async function updatePaymentStatus(id: string, status: 
-  'outstanding_coupon' |
-    'half_month' |
-    'morning_45' |
-    'afternoon_45' |
-    'full_55' |
-    'full_60' |
-    'coupon_65' |
-    'coupon_70' |
-    'overdue'
-) {
+export async function updatePaymentStatus(id: string, status: string) {
   try {
     const response = await apiClient.updatePaymentStatus(id, status);
     if (response.success && response.data) {
@@ -174,6 +155,19 @@ export async function updatePaymentStatus(id: string, status:
   } catch (error) {
     console.error('Failed to update payment status:', error);
     throw error;
+  }
+}
+
+export async function getPaymentPlans(activeOnly = true) {
+  try {
+    const response = await apiClient.getPaymentPlans(activeOnly);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch payment plans:', error);
+    return [];
   }
 }
 

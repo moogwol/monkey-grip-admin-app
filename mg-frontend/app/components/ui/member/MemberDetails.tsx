@@ -20,7 +20,7 @@ export const PaymentStatus = styled.div`
   align-items: center;
 `;
 
-export const PaymentStatusBadge = styled.div<{ $status: 'outstanding_coupon' | 'half_month' | 'morning_45' | 'afternoon_45' | 'full_55' | 'full_60' | 'coupon_65' | 'coupon_70' | 'overdue' }>`
+export const PaymentStatusBadge = styled.div<{ $status: string }>`
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -31,22 +31,18 @@ export const PaymentStatusBadge = styled.div<{ $status: 'outstanding_coupon' | '
   text-transform: capitalize;
   
   background-color: ${props => {
-    switch (props.$status) {
-      case 'overdue': return '#ff0707ff';
-      case 'half_month': return '#ffc107';
-      case 'outstanding_coupon':
-      case 'morning_45':
-      case 'afternoon_45':
-      case 'full_55':
-      case 'full_60':
-      case 'coupon_65':
-      case 'coupon_70':
+    const status = (props.$status || '').toLowerCase();
+    switch (status) {
+      case 'overdue':
+        return '#ff0707ff';
+      case 'coupon package':
+        return '#ffc107';
+      default:
         return '#28a745';
-      default: return '#6c757d';
     }
   }};
   
-  color: ${props => props.$status === 'overdue' ? '#000' : '#fff'};
+  color: ${props => (props.$status || '').toLowerCase() === 'overdue' ? '#000' : '#fff'};
   
   @media (max-width: 768px) {
     position: static;

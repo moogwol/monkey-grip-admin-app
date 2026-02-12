@@ -8,6 +8,7 @@ const membersRouter = require('./routes/contacts'); // Members routes (renamed f
 const couponsRouter = require('./routes/coupons');
 const memberCouponsRouter = require('./routes/member-coupons');
 const imagesRouter = require('./routes/images'); // Image upload/serve routes
+const paymentPlansRouter = require('./routes/payment-plans'); // Payment plans routes
 
 // Image storage is file-based; MinIO removed
 
@@ -25,12 +26,13 @@ app.use('/api/members', membersRouter);
 app.use('/api/coupons', couponsRouter);
 app.use('/api/members', memberCouponsRouter); // Member-specific coupon routes
 app.use('/api/images', imagesRouter); // Image upload/serve routes
-
+app.use('/api/payment-plans', paymentPlansRouter); // Payment plans routes
 console.log('🛣️ Routes registered:');
 console.log('  - /api/members (members router)');
 console.log('  - /api/coupons (coupons router)');
 console.log('  - /api/members (member-coupons router)');
 console.log('  - /api/images (images router)');
+console.log('  - /api/payment-plans (payment-plans router)');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -53,7 +55,8 @@ app.get('/', (req, res) => {
       coupons: '/api/coupons',
       member_coupons: '/api/members/:id/coupons',
       member_stats: '/api/members/stats',
-      coupon_stats: '/api/coupons/stats'
+      coupon_stats: '/api/coupons/stats',
+      payment_plans: '/api/payment-plans'
     }
   });
 });
