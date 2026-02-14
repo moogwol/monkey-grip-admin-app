@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS member_payments (
+gitCREATE TABLE IF NOT EXISTS member_payments (
     id SERIAL PRIMARY KEY,
     member_id INTEGER REFERENCES members (id) ON DELETE CASCADE,
     month_date DATE NOT NULL,
