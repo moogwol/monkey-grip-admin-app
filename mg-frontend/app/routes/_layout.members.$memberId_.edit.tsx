@@ -185,39 +185,6 @@ export default function EditMember({ loaderData }: Route.ComponentProps) {
                         />
                     </FormField>
 
-                    <FormRow>
-                        <FormGroup>
-                            <FormField>
-                                <FormLabel htmlFor="payment_status">Payment Status</FormLabel>
-                                <FormSelect 
-                                    name="payment_status" 
-                                    id="payment_status" 
-                                    required
-                                    defaultValue={member.payment_status}
-                                >
-                                    <option value="paid">Paid</option>
-                                    <option value="overdue">Overdue</option>
-                                    <option value="trial">Trial</option>
-                                </FormSelect>
-                            </FormField>
-                        </FormGroup>
-
-                        <FormGroup>
-                            <FormField>
-                                <FormLabel>Payment Class</FormLabel>
-                                <FormSelect 
-                                    name="payment_class" 
-                                    defaultValue={member.payment_class || "evenings"}
-                                >
-                                    <option value="evenings">Evenings</option>
-                                    <option value="mornings">Mornings</option>
-                                    <option value="both">Both</option>
-                                    <option value="coupon">Coupon</option>
-                                </FormSelect>
-                            </FormField>
-                        </FormGroup>
-                    </FormRow>
-
                     <Actions>
                         <SubmitButton type="submit">Update member</SubmitButton>
                         <CancelButton type="button" onClick={() => navigate(-1)}>

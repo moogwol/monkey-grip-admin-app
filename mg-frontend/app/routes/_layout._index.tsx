@@ -30,6 +30,7 @@ export async function loader() {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { stats } = loaderData || { stats: null };
+  const currentMonthTotalPaid = Number((stats as any)?.current_month_total_paid || 0);
 
   return (
     <IndexPageContainer>
@@ -51,6 +52,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <StatCard>
               <StatTitle>Total Members</StatTitle>
               <StatValue>{(stats as any).total_members}</StatValue>
+            </StatCard>
+
+            <StatCard>
+              <StatTitle>Paid This Month</StatTitle>
+              <StatValue>EUR {currentMonthTotalPaid.toFixed(2)}</StatValue>
             </StatCard>
 
             <StatCard>
