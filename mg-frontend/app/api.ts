@@ -96,18 +96,23 @@ export const apiClient = {
     });
   },
 
-  async updatePaymentStatus(id: string, status:
-    string
-  ): Promise<ApiResponse<MemberRecord>> {
-    return apiRequest<ApiResponse<MemberRecord>>(`/members/${id}/payment-status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ payment_status: status }),
-    });
-  },
-
   async getPaymentPlans(activeOnly = true): Promise<ApiResponse<MembershipPlanRecord[]>> {
     const query = activeOnly ? '?active=true' : '';
     return apiRequest<ApiResponse<MembershipPlanRecord[]>>(`/payment-plans${query}`);
+  },
+
+  async getMemberPayments(memberId: string): Promise<ApiResponse<MemberPaymentRecord[]>> {
+    return apiRequest<ApiResponse<MemberPaymentRecord[]>>(`/members/${memberId}/payments`);
+  },
+
+  async createMemberPayment(
+    memberId: string,
+    payment: Partial<MemberPaymentRecord>
+  ): Promise<ApiResponse<MemberPaymentRecord>> {
+    return apiRequest<ApiResponse<MemberPaymentRecord>>(`/members/${memberId}/payments`, {
+      method: 'POST',
+      body: JSON.stringify(payment),
+    });
   },
 
   async getMemberStats(): Promise<ApiResponse<any>> {
@@ -175,8 +180,11 @@ export interface MemberRecord {
   belt_rank: 'white' | 'blue' | 'purple' | 'brown' | 'black';
   stripes: number;
   last_promotion_date?: string;
-  payment_class: 'evenings' | 'mornings' | 'both' | 'coupon';
   payment_status: string;
+  latest_payment_status?: string | null;
+  latest_membership_plan_id?: number | null;
+  latest_membership_plan_name?: string | null;
+  latest_payment_date?: string | null;
   active: boolean;
   created_at: string;
 }
@@ -200,4 +208,18 @@ export interface ClassCouponRecord {
   active: boolean;
   amount_paid?: number;
   notes?: string;
+}
+
+export interface MemberPaymentRecord {
+  id: string;
+  member_id: string;
+  month_date: string;
+  payment_status: string;
+  membership_plan_id: number | null;
+  plan_name?: string | null;
+  plan_price?: number | string | null;
+  amount_paid?: number | string | null;
+  payment_date?: string | null;
+  notes?: string | null;
+  created_at?: string | null;
 }

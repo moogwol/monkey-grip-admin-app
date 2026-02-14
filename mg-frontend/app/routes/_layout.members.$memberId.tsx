@@ -1,6 +1,6 @@
 import { Form, useFetcher, useNavigate, redirect, Outlet } from "react-router";
 import type { Route } from "../+types/root";
-import { getMember, deleteMember, getMemberCoupons, updatePaymentStatus, getPaymentPlans } from "../data";
+import { getMember, deleteMember, getMemberCoupons, getPaymentPlans, createMemberPayment, getMemberPayments } from "../data";
 import {
   MemberProfile,
   MemberBanner,
@@ -34,22 +34,28 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 
   // Load member's coupons and active payment plans
-  const [coupons, plans] = await Promise.all([
+  const [coupons, plans, payments] = await Promise.all([
     getMemberCoupons(memberId),
-    getPaymentPlans(true)
+    getPaymentPlans(true),
+    getMemberPayments(memberId)
   ]);
 
-  return { member, coupons, plans };
+  return { member, coupons, plans, payments };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const newStatus = formData.get('payment_status') as string;
+  const planIdValue = formData.get('membership_plan_id') as string;
   const memberId = params.memberId;
   if (!memberId) {
     throw new Response("Member ID is required", { status: 400 });
   }
-  await updatePaymentStatus(memberId, newStatus);
+  if (!planIdValue) {
+    throw new Response("Membership plan is required", { status: 400 });
+  }
+  await createMemberPayment(memberId, {
+    membership_plan_id: Number(planIdValue)
+  });
   return redirect(`/members/${memberId}`);
 }
 
@@ -61,7 +67,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
   }
 
   const data = loaderData as any;
-  const { member, coupons = [], plans = [] } = data;
+  const { member, coupons = [], plans = [], payments = [] } = data;
   const navigate = useNavigate();
 
 
@@ -85,8 +91,9 @@ export default function Member({ loaderData }: Route.ComponentProps) {
   return (
     <MemberProfile>
       <MemberBanner>
-        <PaymentStatusBadge $status={member.payment_status}>
-          {member.payment_status.charAt(0).toUpperCase() + member.payment_status.slice(1)}
+        <PaymentStatusBadge $status={member.payment_status || 'overdue'}>
+          {((member.payment_status || 'overdue').charAt(0).toUpperCase() +
+            (member.payment_status || 'overdue').slice(1))}
         </PaymentStatusBadge>
 
         <MemberAvatar>
@@ -160,24 +167,46 @@ export default function Member({ loaderData }: Route.ComponentProps) {
         </MemberDetails>
         <PaymentStatusSelector>
           <PaymentStatusForm as="form" method="post">
-            <PaymentStatusLabel htmlFor="payment-status-select">Update Payment Status:</PaymentStatusLabel>
+            <PaymentStatusLabel htmlFor="payment-status-select">Record Payment Plan:</PaymentStatusLabel>
             <PaymentStatusSelect
               id="payment-status-select"
-              name="payment_status"
-              defaultValue={member.payment_status}>
+              name="membership_plan_id"
+              defaultValue={member.latest_membership_plan_id ?? ""}
+            >
               {Array.isArray(plans) && plans.length > 0 ? (
                 plans.map((plan: any) => (
-                  <option key={plan.id} value={plan.name}>
+                  <option key={plan.id} value={plan.id}>
                     {plan.name}{plan.price !== null && plan.price !== undefined ? ` -  €${plan.price}` : ''}
                   </option>
                 ))
               ) : (
-                <option value={member.payment_status}>{member.payment_status}</option>
+                <option value="">No plans available</option>
               )}
             </PaymentStatusSelect>
-            <PaymentStatusButton type="submit">Update</PaymentStatusButton>
+            <PaymentStatusButton type="submit">Record Payment</PaymentStatusButton>
           </PaymentStatusForm>
         </PaymentStatusSelector>
+
+        <div className="payments-section">
+          <h3>Payments</h3>
+          {Array.isArray(payments) && payments.length > 0 ? (
+            <ul>
+              {payments.map((payment: any) => (
+                <li key={payment.id} className="payment-item">
+                  <strong>{payment.plan_name || 'Unassigned Plan'}</strong>
+                  {payment.amount_paid !== null && payment.amount_paid !== undefined ? (
+                    <span> - €{payment.amount_paid}</span>
+                  ) : null}
+                  {payment.payment_date ? (
+                    <span> ({formatDate(payment.payment_date)})</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No payments recorded yet.</p>
+          )}
+        </div>
 
         <div className="coupons-section">
           <h3>Class Coupons</h3>

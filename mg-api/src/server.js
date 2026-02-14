@@ -7,6 +7,7 @@ require('dotenv').config();
 const membersRouter = require('./routes/contacts'); // Members routes (renamed from contacts)
 const couponsRouter = require('./routes/coupons');
 const memberCouponsRouter = require('./routes/member-coupons');
+const memberPaymentsRouter = require('./routes/member-payments');
 const imagesRouter = require('./routes/images'); // Image upload/serve routes
 const paymentPlansRouter = require('./routes/payment-plans'); // Payment plans routes
 
@@ -25,12 +26,14 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use('/api/members', membersRouter);
 app.use('/api/coupons', couponsRouter);
 app.use('/api/members', memberCouponsRouter); // Member-specific coupon routes
+app.use('/api/members', memberPaymentsRouter); // Member-specific payment routes
 app.use('/api/images', imagesRouter); // Image upload/serve routes
 app.use('/api/payment-plans', paymentPlansRouter); // Payment plans routes
 console.log('🛣️ Routes registered:');
 console.log('  - /api/members (members router)');
 console.log('  - /api/coupons (coupons router)');
 console.log('  - /api/members (member-coupons router)');
+console.log('  - /api/members (member-payments router)');
 console.log('  - /api/images (images router)');
 console.log('  - /api/payment-plans (payment-plans router)');
 

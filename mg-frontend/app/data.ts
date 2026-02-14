@@ -16,8 +16,6 @@ export type MemberMutation = {
   belt_rank?: 'white' | 'blue' | 'purple' | 'brown' | 'black';
   stripes?: number;
   last_promotion_date?: string;
-  payment_class?: 'evenings' | 'mornings' | 'both' | 'coupon';
-  payment_status?: string;
   active?: boolean;
 };
 
@@ -62,8 +60,6 @@ export async function createEmptyMember() {
       email: `member${timestamp}@example.com`,
       belt_rank: 'white',
       stripes: 0,
-      payment_status: 'overdue',
-      payment_class: 'evenings',
       active: true,
     });
     if (response.success && response.data) {
@@ -145,15 +141,18 @@ export async function promoteMember(id: string, newBelt: string, newStripes: num
   }
 }
 
-export async function updatePaymentStatus(id: string, status: string) {
+export async function createMemberPayment(
+  id: string,
+  payment: { membership_plan_id: number; payment_date?: string; amount_paid?: number; notes?: string }
+) {
   try {
-    const response = await apiClient.updatePaymentStatus(id, status);
+    const response = await apiClient.createMemberPayment(id, payment);
     if (response.success && response.data) {
       return response.data;
     }
-    throw new Error(response.message || 'Failed to update payment status');
+    throw new Error(response.message || 'Failed to record payment');
   } catch (error) {
-    console.error('Failed to update payment status:', error);
+    console.error('Failed to record payment:', error);
     throw error;
   }
 }
@@ -167,6 +166,19 @@ export async function getPaymentPlans(activeOnly = true) {
     return [];
   } catch (error) {
     console.error('Failed to fetch payment plans:', error);
+    return [];
+  }
+}
+
+export async function getMemberPayments(memberId: string) {
+  try {
+    const response = await apiClient.getMemberPayments(memberId);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch member payments:', error);
     return [];
   }
 }

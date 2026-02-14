@@ -2,20 +2,10 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const db = require('../database');
 const Member = require('../models/Contact'); // Will be renamed to Member model
+const MemberPayment = require('../models/MemberPayment');
 
 const router = express.Router();
 
-const isValidPaymentStatus = async (status) => {
-  if (status === 'overdue') {
-    return true;
-  }
-
-  const result = await db.query(
-    'SELECT 1 FROM membership_plans WHERE active = true AND name = $1',
-    [status]
-  );
-  return result.rowCount > 0;
-};
 const validateMember = [
   body('first_name')
     .notEmpty()
@@ -49,19 +39,6 @@ const validateMember = [
     .optional()
     .isInt({ min: 0, max: 4 })
     .withMessage('Stripes must be between 0 and 4'),
-  body('payment_class')
-    .optional()
-    .isIn(['evenings', 'mornings', 'both', 'coupon'])
-    .withMessage('Payment class must be: evenings, mornings, both, or coupon'),
-  body('payment_status')
-    .optional()
-    .custom(async (value) => {
-      const valid = await isValidPaymentStatus(value);
-      if (!valid) {
-        throw new Error('Payment status must be an active plan name or overdue');
-      }
-      return true;
-    }),
   body('active')
     .optional()
     .isBoolean()
@@ -71,7 +48,7 @@ const validateMember = [
 // GET /members - Get all members with optional filtering
 router.get('/', async (req, res) => {
   try {
-    const { search, active, belt_rank, payment_status, payment_class } = req.query;
+    const { search, active, belt_rank, payment_status } = req.query;
     let members;
 
     if (search) {
@@ -86,7 +63,6 @@ router.get('/', async (req, res) => {
       }
       if (belt_rank) filters.belt_rank = belt_rank;
       if (payment_status) filters.payment_status = payment_status;
-      if (payment_class) filters.payment_class = payment_class;
 
       members = await Member.findAll(filters);
     }
@@ -108,14 +84,20 @@ router.get('/', async (req, res) => {
 // GET /members/stats - Get member statistics
 router.get('/stats', async (req, res) => {
   try {
-    const beltDistribution = await Member.getBeltDistribution();
-    const paymentStatusSummary = await Member.getPaymentStatusSummary();
+    const [totalMembers, beltDistribution, paymentStatusSummary, currentMonthTotalPaid] = await Promise.all([
+      Member.countActive(),
+      Member.getBeltDistribution(),
+      Member.getPaymentStatusSummary(),
+      MemberPayment.getCurrentMonthTotal()
+    ]);
 
     res.json({
       success: true,
       data: {
+        total_members: totalMembers,
         belt_distribution: beltDistribution,
-        payment_status_summary: paymentStatusSummary
+        payment_status_summary: paymentStatusSummary,
+        current_month_total_paid: currentMonthTotalPaid
       }
     });
   } catch (error) {
@@ -333,15 +315,37 @@ router.patch('/:id/payment-status', async (req, res) => {
       });
     }
 
-    const isValid = await isValidPaymentStatus(payment_status);
-    if (!isValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment status must be an active plan name or overdue'
+    if (payment_status === 'overdue') {
+      await MemberPayment.create(id, {
+        payment_status: 'overdue',
+        membership_plan_id: null,
+        amount_paid: null,
+        payment_date: null,
+        notes: 'Status set to overdue'
+      });
+    } else {
+      const plan = await db.query(
+        'SELECT id, price FROM membership_plans WHERE active = true AND name = $1',
+        [payment_status]
+      );
+
+      if (plan.rowCount === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment status must be an active plan name or overdue'
+        });
+      }
+
+      await MemberPayment.create(id, {
+        payment_status: 'paid',
+        membership_plan_id: plan.rows[0].id,
+        amount_paid: plan.rows[0].price ?? null,
+        payment_date: new Date().toISOString().slice(0, 10),
+        notes: 'Status set from plan'
       });
     }
 
-    const member = await Member.updatePaymentStatus(id, payment_status);
+    const member = await Member.findById(id);
 
     if (!member) {
       return res.status(404).json({

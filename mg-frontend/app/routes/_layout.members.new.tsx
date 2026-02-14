@@ -133,31 +133,6 @@ export default function NewMember() {
                     <FormInput type="date" name="date_of_birth" data-lpignore="true" />
                 </FormField>
 
-                <FormRow>
-                    <FormGroup>
-                        <FormField>
-                            <FormLabel htmlFor="payment_status">Payment Status</FormLabel>
-                            <FormSelect name="payment_status" id="payment_status" required>
-                                <option value="paid">Paid</option>
-                                <option value="overdue">Overdue</option>
-                                <option value="trial">Trial</option>
-                            </FormSelect>
-                        </FormField>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <FormField>
-                            <FormLabel>Payment Class</FormLabel>
-                            <FormSelect name="payment_class" defaultValue="evenings">
-                                <option value="evenings">Evenings</option>
-                                <option value="mornings">Mornings</option>
-                                <option value="both">Both</option>
-                                <option value="coupon">Coupon</option>
-                            </FormSelect>
-                        </FormField>
-                    </FormGroup>
-                </FormRow>
-
                 <Actions>
                     <SubmitButton type="submit">Create Member</SubmitButton>
                     <CancelButton type="button" onClick={() => navigate(-1)}>

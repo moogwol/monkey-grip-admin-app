@@ -14,10 +14,6 @@ CREATE TABLE IF NOT EXISTS members (
         AND stripes <= 4
     ),
     last_promotion_date DATE,
-    payment_class VARCHAR(20) DEFAULT 'evenings' CHECK (
-        payment_class IN ('evenings', 'mornings', 'both', 'coupon')
-    ),
-    payment_status VARCHAR(20) DEFAULT 'overdue',
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
