@@ -49,13 +49,13 @@ services:
       - "5173:5173"
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - VITE_API_URL=http://mg-api:3000/api
+      - VITE_API_URL=${API_URL:-http://localhost:3000/api}
     volumes:
       - ./mg-frontend:/app
       - /app/node_modules
     depends_on:
       - mg-api
-    command: ["npm", "run", "dev"]
+    command: ["npm", "run", "build"]
 
 
 volumes:
