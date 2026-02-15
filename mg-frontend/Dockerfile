@@ -17,5 +17,6 @@ EXPOSE 5173
 # Enable polling for file changes (useful in Docker)
 ENV CHOKIDAR_USEPOLLING=true
 
-# Start the dev server
+# Default command can be overridden in docker-compose
+CMD ["npm", "run", "dev"]
 CMD ["npm", "run", "dev"]
