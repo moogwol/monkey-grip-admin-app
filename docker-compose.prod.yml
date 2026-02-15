@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: bjj_club_db
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./mg-backend/00-init-users.sql:/docker-entrypoint-initdb.d/00-init-users.sql:ro
       - ./mg-backend/01-init-members.sql:/docker-entrypoint-initdb.d/01-init-members.sql:ro
       - ./mg-backend/02-init-class-coupons.sql:/docker-entrypoint-initdb.d/02-init-class-coupons.sql:ro
       - ./mg-backend/03-membership_plans.sql:/docker-entrypoint-initdb.d/03-membership_plans.sql:ro

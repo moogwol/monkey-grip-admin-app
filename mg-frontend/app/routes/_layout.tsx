@@ -17,6 +17,7 @@ import type { Route } from "../+types/root";
 import appStylesHref from "../app.css?url";
 
 import { getMembers, createEmptyMember } from "../data"
+import { requireAuth } from "../auth";
 import {
     StyledNavLink,
     Sidebar,
@@ -29,18 +30,16 @@ import {
 } from "../components";
 
 
-// Loader function to fetch members data
+// Loader function to fetch members data and check authentication
 export async function loader({ request }: Route.LoaderArgs) {
+    // Check if user is authenticated
+    await requireAuth();
+
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
     const members = await getMembers(q);
     return { members, q };
 }
-
-// // Action function to handle form submissions (create member)
-// export async function action({ request }: Route.ActionArgs) {
-//     return redirect(`/members/new`);
-// }
 
 type Member = {
     id: string;
@@ -101,6 +100,23 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             <button type="submit">New</button>
                         </Link>
                 </SidebarControls>
+                <Form method="post" action="/logout" style={{ padding: '1rem 0' }}>
+                    <button 
+                        type="submit" 
+                        style={{
+                            width: '100%',
+                            padding: '0.5rem 1rem',
+                            background: '#f0f0f0',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            color: '#666'
+                        }}
+                    >
+                        🚪 Logout
+                    </button>
+                </Form>
                 <StyledNav>
                     {members.length ? (
                         <ul>

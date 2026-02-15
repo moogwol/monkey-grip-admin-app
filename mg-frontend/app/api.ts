@@ -30,6 +30,7 @@ async function apiRequest<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+    credentials: 'include', // Include cookies for session-based auth
     ...options,
   };
 
@@ -58,6 +59,36 @@ async function apiRequest<T>(
 }
 
 export const apiClient = {
+  // Authentication
+  async login(username: string, password: string): Promise<ApiResponse<any>> {
+    return apiRequest<ApiResponse<any>>('/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ username, password }),
+    });
+  },
+
+  async logout(): Promise<ApiResponse<any>> {
+    return apiRequest<ApiResponse<any>>('/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+  },
+
+  async getCurrentUser(): Promise<ApiResponse<any>> {
+    return apiRequest<ApiResponse<any>>('/auth/me', {
+      credentials: 'include',
+    });
+  },
+
+  async register(username: string, password: string, email: string, fullName: string): Promise<ApiResponse<any>> {
+    return apiRequest<ApiResponse<any>>('/auth/register', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ username, password, email, full_name: fullName }),
+    });
+  },
+
   // Members Management
   async getMembers(search?: string): Promise<ApiResponse<MemberRecord[]>> {
     const searchParam = search ? `?search=${encodeURIComponent(search)}` : '';

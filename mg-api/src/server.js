@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const session = require('express-session');
 require('dotenv').config();
 
 // Import routes
@@ -10,6 +11,7 @@ const memberCouponsRouter = require('./routes/member-coupons');
 const memberPaymentsRouter = require('./routes/member-payments');
 const imagesRouter = require('./routes/images'); // Image upload/serve routes
 const paymentPlansRouter = require('./routes/payment-plans'); // Payment plans routes
+const authRouter = require('./routes/auth'); // Authentication routes
 
 // Image storage is file-based; MinIO removed
 
@@ -18,11 +20,28 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet()); // Security headers
-app.use(cors()); // Enable CORS
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+})); // Enable CORS with credentials
 app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: 'lax'
+  }
+}));
+
 // Routes
+app.use('/api/auth', authRouter); // Auth routes (login/logout/register)
 app.use('/api/members', membersRouter);
 app.use('/api/coupons', couponsRouter);
 app.use('/api/members', memberCouponsRouter); // Member-specific coupon routes
@@ -30,6 +49,7 @@ app.use('/api/members', memberPaymentsRouter); // Member-specific payment routes
 app.use('/api/images', imagesRouter); // Image upload/serve routes
 app.use('/api/payment-plans', paymentPlansRouter); // Payment plans routes
 console.log('🛣️ Routes registered:');
+console.log('  - /api/auth (auth router)');
 console.log('  - /api/members (members router)');
 console.log('  - /api/coupons (coupons router)');
 console.log('  - /api/members (member-coupons router)');
