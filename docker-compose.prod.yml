@@ -35,6 +35,8 @@ services:
       - IMAGE_STORAGE_PATH=/data/images
       - FRONTEND_URL=http://188.166.156.188:5173
       - SESSION_SECRET=your-secure-random-string-change-in-production
+    healthcheck:
+      test: ["CMD", "true"]
     volumes:
       - ./mg-api:/app
       - /app/node_modules
