@@ -48,7 +48,7 @@ services:
     build:
       context: ./mg-frontend
     ports:
-      - "5173:5173"
+      - "5173:3000"
     environment:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=http://mg-api:3000/api
