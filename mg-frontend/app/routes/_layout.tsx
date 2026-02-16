@@ -30,16 +30,30 @@ import {
 } from "../components";
 
 
-// Loader function to fetch members data and check authentication
+// // Loader function to fetch members data and check authentication
+// export async function loader({ request }: Route.LoaderArgs) {
+//     // Check if user is authenticated
+//     await requireAuth();
+
+//     const url = new URL(request.url);
+//     const q = url.searchParams.get("q");
+//     const members = await getMembers(q);
+//     return { members, q };
+// }
+
 export async function loader({ request }: Route.LoaderArgs) {
+    const cookie = request.headers.get("cookie") || "";
+
     // Check if user is authenticated
-    await requireAuth();
+    await requireAuth(cookie);
 
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
-    const members = await getMembers(q);
+    const members = await getMembers(q, cookie);
+
     return { members, q };
 }
+
 
 type Member = {
     id: string;

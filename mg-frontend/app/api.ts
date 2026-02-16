@@ -20,44 +20,61 @@ class ApiError extends Error {
   }
 }
 
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+// async function apiRequest<T>(
+//   endpoint: string,
+//   options: RequestInit = {}
+// ): Promise<T> {
+//   const url = `${API_BASE_URL}${endpoint}`;
+
+//   const config: RequestInit = {
+//     headers: {
+//       'Content-Type': 'application/json',
+//       ...options.headers,
+//     },
+//     credentials: 'include', // Include cookies for session-based auth
+//     ...options,
+//   };
+
+//   try {
+//     const response = await fetch(url, config);
+
+//     if (!response.ok) {
+//       let errorData;
+//       try {
+//         errorData = await response.json();
+//       } catch {
+//         errorData = { message: response.statusText };
+//       }
+//       throw new ApiError(response.status, errorData.message || response.statusText, errorData);
+//     }
+
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     if (error instanceof ApiError) {
+//       throw error;
+//     }
+//     // Network or other errors
+//     throw new ApiError(0, 'Network error or server unavailable', error);
+//   }
+// }
+
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
   const config: RequestInit = {
+    credentials: 'include',
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include', // Include cookies for session-based auth
-    ...options,
+      ...(options.headers || {})
+    }
   };
 
-  try {
-    const response = await fetch(url, config);
-
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: response.statusText };
-      }
-      throw new ApiError(response.status, errorData.message || response.statusText, errorData);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    // Network or other errors
-    throw new ApiError(0, 'Network error or server unavailable', error);
-  }
+  const response = await fetch(url, config);
+  return response.json();
 }
+
 
 export const apiClient = {
   // Authentication
@@ -76,11 +93,13 @@ export const apiClient = {
     });
   },
 
-  async getCurrentUser(): Promise<ApiResponse<any>> {
+  async getCurrentUser(options: RequestInit = {}): Promise<ApiResponse<any>> {
     return apiRequest<ApiResponse<any>>('/auth/me', {
       credentials: 'include',
+      ...options
     });
   },
+
 
   async register(username: string, password: string, email: string, fullName: string): Promise<ApiResponse<any>> {
     return apiRequest<ApiResponse<any>>('/auth/register', {

@@ -2,9 +2,11 @@ import { redirect } from "react-router";
 import { apiClient } from "./api";
 
 // Check if user is authenticated
-export async function requireAuth() {
+export async function requireAuth(cookie?: string) {
   try {
-    const response = await apiClient.getCurrentUser();
+    const response = await apiClient.getCurrentUser({
+      headers: cookie ? { cookie } : undefined
+    });
     if (!response.success) {
       throw redirect('/login');
     }
@@ -14,6 +16,17 @@ export async function requireAuth() {
     throw redirect('/login');
   }
 }
+
+// export async function requireAuth(cookie: string) {
+//   const user = await apiClient.getCurrentUser({
+//     headers: { cookie }
+//   });
+
+//   if (!user?.success) {
+//     throw redirect('/login');
+//   }
+// }
+
 
 // Optional: Get current user if authenticated, return null otherwise
 export async function getCurrentUserIfAuthenticated() {

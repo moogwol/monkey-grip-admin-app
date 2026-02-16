@@ -37,7 +37,10 @@ export type { MemberRecord, ClassCouponRecord, MembershipPlanRecord };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Member API wrapper functions
-export async function getMembers(query?: string | null) {
+export async function getMembers(query?: string | null, cookie?: string) {
+//   export async function getMembers(q: string | null, options?: RequestInit) {
+
+
   try {
     const response = await apiClient.getMembers(query || undefined);
     if (response.success && response.data) {
