@@ -46,21 +46,34 @@ services:
     command: ["npm", "start"]
     restart: always
 
+  # mg-frontend:
+  #   build:
+  #     context: ./mg-frontend
+  #   ports:
+  #     - "5173:3000"
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - VITE_API_URL=http://mg-api:3000/api
+  #   # volumes:
+  #   #   - ./mg-frontend:/app
+  #   #   - /app/node_modules
+  #   depends_on:
+  #     - mg-api
+  #   command: ["npm", "run", "start"]
+  #   restart: always
+
   mg-frontend:
     build:
       context: ./mg-frontend
     ports:
-      - "5173:3000"
+    - "5173:3000"
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_API_URL=http://mg-api:3000/api
-    # volumes:
-    #   - ./mg-frontend:/app
-    #   - /app/node_modules
+    - VITE_API_URL=http://mg-api:3000/api
     depends_on:
-      - mg-api
-    command: ["npm", "run", "start"]
+    - mg-api
+    command: ["node", "build/server/index.js"]
     restart: always
+
 
 
 volumes:
