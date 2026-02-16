@@ -57,7 +57,7 @@ services:
       - /app/node_modules
     depends_on:
       - mg-api
-    command: ["npm", "run", "dev"]
+    command: ["npm", "run", "start"]
     restart: always
 
 
