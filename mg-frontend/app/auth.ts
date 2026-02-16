@@ -6,12 +6,12 @@ export async function requireAuth() {
   try {
     const response = await apiClient.getCurrentUser();
     if (!response.success) {
-      return redirect('/login');
+      throw redirect('/login');
     }
     return response.data;
   } catch (error) {
     // If any error (401, network error, etc.), redirect to login
-    return redirect('/login');
+    throw redirect('/login');
   }
 }
 

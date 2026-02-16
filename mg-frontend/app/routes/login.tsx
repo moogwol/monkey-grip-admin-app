@@ -117,21 +117,48 @@ export async function action({ request }: Route.ActionArgs) {
   const password = formData.get('password') as string;
 
   try {
-    const response = await apiClient.login(username, password);
+    // If running on the server (SSR/dev server action), perform the fetch to the
+    // backend and forward the Set-Cookie header back to the browser via redirect.
+    const isServer = typeof window === 'undefined';
 
-    if (response.success) {
-      // Redirect to home page on successful login
-      return redirect('/');
-    } else {
-      return {
-        error: response.message || 'Login failed'
-      };
+    if (isServer) {
+      // Resolve backend base URL for server-side fetch. If VITE_API_URL is a
+      // relative path (e.g. '/api') inside Docker, point to the mg-api service.
+      const env = (import.meta as any).env || {};
+      let base = env.VITE_API_URL || 'http://localhost:3000/api';
+      if (base.startsWith('/')) {
+        base = `http://mg-api:3000${base}`;
+      }
+
+      const res = await fetch(`${base}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        // Forward Set-Cookie if present so browser stores the session cookie.
+        const setCookie = res.headers.get('set-cookie');
+        if (setCookie) {
+          return redirect('/', { headers: { 'Set-Cookie': setCookie } });
+        }
+        return redirect('/');
+      }
+
+      return { error: data.message || 'Login failed' };
     }
+
+    // Client-side path: call apiClient which uses fetch in the browser
+    const response = await apiClient.login(username, password);
+    if (response.success) {
+      return redirect('/');
+    }
+    return { error: response.message || 'Login failed' };
   } catch (error) {
     console.error('Login error:', error);
-    return {
-      error: error instanceof Error ? error.message : 'An error occurred during login'
-    };
+    return { error: error instanceof Error ? error.message : 'An error occurred during login' };
   }
 }
 

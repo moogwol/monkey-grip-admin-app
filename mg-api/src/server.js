@@ -19,7 +19,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet()); // Security headers
+app.use(helmet(
+  {
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false
+  }
+  
+)); // Security headers
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -33,12 +40,15 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to true in production with HTTPS
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    sameSite: 'lax'
+    sameSite: 'none'
   }
 }));
+
+
 
 // Routes
 app.use('/api/auth', authRouter); // Auth routes (login/logout/register)
@@ -106,7 +116,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🥋 BJJ Club Management API server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🗄️  Database: ${process.env.DB_NAME || 'bjj_club_db'}`);
-  
+
   // File-based image storage initialized via IMAGE_STORAGE_PATH
 });
 

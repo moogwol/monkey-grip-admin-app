@@ -1,5 +1,6 @@
 // API client for BJJ Club Management System
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
+// Prefer a relative `/api` during local dev so Vite's proxy handles requests
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? '/api' : 'http://localhost:3000/api');
 
 export interface ApiResponse<T> {
   success: boolean;
