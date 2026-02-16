@@ -1,22 +1,21 @@
-# Use Node.js base image
-FROM node:24-alpine
-
-# Set working directory
+# --- Build stage ---
+FROM node:24-alpine AS builder
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
 RUN npm install --include=dev
 
-# Copy source code
 COPY . .
+RUN npm run build
 
-# Expose dev server port
-EXPOSE 5173
+# --- Production stage ---
+FROM node:24-alpine
+WORKDIR /app
 
-# Enable polling for file changes (useful in Docker)
-ENV CHOKIDAR_USEPOLLING=true
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/package*.json ./
+RUN npm install --omit=dev
 
-# Start the dev server
-CMD ["npm", "run", "dev"]
-CMD ["npm", "run", "dev"]
+EXPOSE 3000
+
+CMD ["node", "build/server/index.js"]

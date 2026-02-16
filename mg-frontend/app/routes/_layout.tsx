@@ -43,6 +43,8 @@ import {
 
 export async function loader({ request }: Route.LoaderArgs) {
     const cookie = request.headers.get("cookie") || "";
+    console.log("SSR cookie:", cookie);
+
 
     // Check if user is authenticated
     await requireAuth(cookie);
