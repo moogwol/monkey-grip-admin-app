@@ -71,7 +71,7 @@ services:
     - VITE_API_URL=http://mg-api:3000/api
     depends_on:
     - mg-api
-    command: ["node", "build/server/index.js"]
+    command: ["npm", "run", "start"]
     restart: always
 
 
