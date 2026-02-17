@@ -88,7 +88,10 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     const envApiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
     if (envApiUrl) {
       if (envApiUrl.startsWith('http://') || envApiUrl.startsWith('https://')) {
-        return new URL(envApiUrl).origin;
+        const parsed = new URL(envApiUrl);
+        if (parsed.hostname !== 'mg-api') {
+          return parsed.origin;
+        }
       }
     }
 
@@ -103,7 +106,8 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     if (!avatarUrl) return '';
 
     if (avatarUrl.startsWith('/api/')) {
-      return avatarUrl;
+      const isDev = Boolean((import.meta as any).env?.DEV);
+      return isDev ? avatarUrl : `${getApiOrigin()}${avatarUrl}`;
     }
 
     if (avatarUrl.startsWith('/')) {
