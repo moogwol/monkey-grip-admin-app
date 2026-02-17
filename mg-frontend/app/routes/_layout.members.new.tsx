@@ -38,8 +38,6 @@ export async function action({ request }: Route.ActionArgs) {
             delete newMemberData[field];
         }
     });
-    
-    console.log("New member data submitted:", newMemberData);
 
     // Create the member
     const createdMember = await createMember(newMemberData);
@@ -50,11 +48,19 @@ export async function action({ request }: Route.ActionArgs) {
         imageFormData.append('profileImage', profileImageFile);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const env = (import.meta as any).env || {};
+            let apiUrl = env.VITE_API_URL || (env.DEV ? '/api' : 'http://mg-api:3000/api');
+            if (apiUrl.startsWith('/')) {
+                const origin = new URL(request.url).origin;
+                apiUrl = `${origin}${apiUrl}`;
+            }
+
+            const incomingCookie = request.headers.get('cookie');
             const uploadResponse = await fetch(
                 `${apiUrl}/images/members/${createdMember.id}/profile-image`,
                 {
                     method: 'POST',
+                    headers: incomingCookie ? { cookie: incomingCookie } : undefined,
                     body: imageFormData
                 }
             );

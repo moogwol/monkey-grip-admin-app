@@ -60,8 +60,6 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function Member({ loaderData }: Route.ComponentProps) {
-  console.log("Loader data:", loaderData);
-
   if (!loaderData) {
     throw new Response("Member not found", { status: 404 });
   }
@@ -86,6 +84,49 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     return coupons.filter((coupon: any) => coupon.classes_used >= coupon.classes_total);
   };
 
+  const getApiOrigin = () => {
+    const envApiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
+    if (envApiUrl) {
+      if (envApiUrl.startsWith('http://') || envApiUrl.startsWith('https://')) {
+        return new URL(envApiUrl).origin;
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      return `${window.location.protocol}//${window.location.hostname}:3000`;
+    }
+
+    return 'http://localhost:3000';
+  };
+
+  const resolveAvatarUrl = (avatarUrl?: string | null) => {
+    if (!avatarUrl) return '';
+
+    if (avatarUrl.startsWith('/api/')) {
+      return avatarUrl;
+    }
+
+    if (avatarUrl.startsWith('/')) {
+      return `${getApiOrigin()}${avatarUrl}`;
+    }
+
+    if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
+      try {
+        const parsed = new URL(avatarUrl);
+        if (parsed.hostname === 'mg-api') {
+          parsed.protocol = typeof window !== 'undefined' ? window.location.protocol : parsed.protocol;
+          parsed.hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+          parsed.port = '3000';
+          return parsed.toString();
+        }
+      } catch {
+        return avatarUrl;
+      }
+    }
+
+    return avatarUrl;
+  };
+
 
 
   return (
@@ -101,7 +142,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             alt={`${member.first_name} ${member.last_name} avatar`}
             key={member.id}
             src={
-              member.avatar_url ||
+              resolveAvatarUrl(member.avatar_url) ||
               `https://robohash.org/${member.first_name}+${member.last_name}`
             }
             onError={(e) => {

@@ -116,8 +116,6 @@ export async function action({ request }: Route.ActionArgs) {
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
 
-  console.log("API URL:", import.meta.env.VITE_API_URL);
-
 
 
 

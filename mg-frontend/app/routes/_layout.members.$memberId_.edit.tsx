@@ -41,7 +41,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 // Action to update the member in the database
 export async function action({ request, params }: Route.ActionArgs) {
-    console.log("ACTION CALLED!");
     const formData = await request.formData();
     
     // Extract image file before converting to object
@@ -75,11 +74,19 @@ export async function action({ request, params }: Route.ActionArgs) {
         imageFormData.append('profileImage', profileImageFile);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const env = (import.meta as any).env || {};
+            let apiUrl = env.VITE_API_URL || (env.DEV ? '/api' : 'http://mg-api:3000/api');
+            if (apiUrl.startsWith('/')) {
+                const origin = new URL(request.url).origin;
+                apiUrl = `${origin}${apiUrl}`;
+            }
+
+            const incomingCookie = request.headers.get('cookie');
             const uploadResponse = await fetch(
                 `${apiUrl}/images/members/${params.memberId}/profile-image`,
                 {
                     method: 'POST',
+                    headers: incomingCookie ? { cookie: incomingCookie } : undefined,
                     body: imageFormData
                 }
             );
@@ -88,11 +95,6 @@ export async function action({ request, params }: Route.ActionArgs) {
         }
     }
 
-
-
-    
-    console.log("Updated member data submitted:", updatedMemberData);
-    
     // Ensure memberId is defined
     if (!params.memberId) {
         throw new Response("Member ID is required", { status: 400 });

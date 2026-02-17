@@ -90,14 +90,10 @@ export async function createMember(member: MemberMutation) {
 
 export async function getMember(id: string) {
   try {
-    console.log('Fetching member with ID:', id);
     const response = await apiClient.getMember(id);
-    console.log('API response:', response);
     if (response.success && response.data) {
-      console.log('Retrieved member:', response.data);
       return response.data;
     }
-    console.log('Member not found or API returned error:', response.message);
     return null;
   } catch (error) {
     console.error('Failed to fetch member:', error);

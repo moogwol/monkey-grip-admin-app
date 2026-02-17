@@ -8,7 +8,6 @@ const fs = require('fs');
 
 // Simple test route
 router.get('/test', (req, res) => {
-    console.log('🧪 Test route hit!');
     res.json({ message: 'Images router is working!' });
 });
 
@@ -19,16 +18,7 @@ router.post('/members/:memberId/profile-image',
             const { memberId } = req.params;
             const file = req.file;
 
-            // Debug logging
-            console.log('🔍 Upload request received:');
-            console.log('  - Member ID:', memberId);
-            console.log('  - File object:', file);
-            console.log('  - Request files:', req.files);
-            console.log('  - Request body:', req.body);
-            console.log('  - Content-Type:', req.headers['content-type']);
-
             if (!file) {
-                console.log('❌ No file found in request');
                 return res.status(400).json({
                     success: false,
                     message: 'No file uploaded'
@@ -69,10 +59,8 @@ router.post('/members/:memberId/profile-image',
 
 // Serve images through API (proxy)
 router.get('/serve/:bucket/:filename', async (req, res) => {
-    console.log('🖼️ Serve image request:', req.params);
     try {
         const { bucket, filename } = req.params;
-        console.log(`📂 Fetching: ${bucket}/${filename}`);
 
         const basePath = process.env.IMAGE_STORAGE_PATH || '/data/images';
         const filePath = path.join(basePath, bucket, filename);
@@ -95,7 +83,6 @@ router.get('/serve/:bucket/:filename', async (req, res) => {
             'Cache-Control': 'public, max-age=86400' // 24 hours
         });
 
-        console.log('✅ Streaming file to response:', resolved);
         const stream = fs.createReadStream(resolved);
         stream.on('error', (err) => {
             console.error('Stream error:', err);
