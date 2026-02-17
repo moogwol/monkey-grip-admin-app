@@ -77,6 +77,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
   // };
 
   const config: RequestInit = {
+    credentials: 'include',
     ...options,
     headers: {
       ...(options.headers || {}), 'Content-Type': 'application/json',

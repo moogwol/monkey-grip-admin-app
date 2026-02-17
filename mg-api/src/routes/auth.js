@@ -128,6 +128,14 @@ router.post('/logout', (req, res) => {
         errors: [{ field: 'server', message: err.message }]
       });
     }
+    // Clear the cookie
+    res.clearCookie("connect.sid", {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax"
+    });
+
     return res.json({
       success: true,
       message: 'Logout successful'
