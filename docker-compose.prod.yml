@@ -65,6 +65,8 @@ services:
   mg-frontend:
     build:
       context: ./mg-frontend
+      args:
+        VITE_API_URL: http://mg-api:3000/api
     ports:
       - "5173:3000"
     environment:
