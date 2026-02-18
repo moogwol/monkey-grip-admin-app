@@ -94,6 +94,7 @@ app.get('/', (req, res) => {
       members: '/api/members',
       coupons: '/api/coupons',
       member_coupons: '/api/members/:id/coupons',
+      member_coupon_top_up: '/api/members/:id/coupon/top-up',
       member_stats: '/api/members/stats',
       coupon_stats: '/api/coupons/stats',
       payment_plans: '/api/payment-plans'

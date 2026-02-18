@@ -83,7 +83,44 @@ class ClassCoupon {
     // If classes_remaining not specified, use total_classes
     const remaining = classes_remaining !== undefined ? classes_remaining : total_classes;
 
-    const query = `
+    const values = [
+      member_id, total_classes, remaining, purchase_date || new Date(),
+      expiry_date, amount_paid, notes, active
+    ];
+
+    const updateQuery = `
+      UPDATE class_coupons
+      SET
+        total_classes = class_coupons.total_classes + $2,
+        classes_remaining = class_coupons.classes_remaining + $3,
+        purchase_date = LEAST(class_coupons.purchase_date, $4),
+        expiry_date = COALESCE($5, class_coupons.expiry_date),
+        amount_paid = CASE
+          WHEN class_coupons.amount_paid IS NULL AND $6::numeric IS NULL THEN NULL
+          ELSE COALESCE(class_coupons.amount_paid, 0) + COALESCE($6::numeric, 0)
+        END,
+        notes = CASE
+          WHEN NULLIF(TRIM(class_coupons.notes), '') IS NULL THEN $7::text
+          WHEN NULLIF(TRIM($7::text), '') IS NULL THEN class_coupons.notes
+          ELSE class_coupons.notes || ' | ' || $7::text
+        END,
+        active = class_coupons.active OR $8::boolean
+      WHERE id = (
+        SELECT id
+        FROM class_coupons
+        WHERE member_id = $1
+        ORDER BY id DESC
+        LIMIT 1
+      )
+      RETURNING *
+    `;
+
+    const updateResult = await db.query(updateQuery, values);
+    if (updateResult.rows[0]) {
+      return updateResult.rows[0];
+    }
+
+    const insertQuery = `
       INSERT INTO class_coupons (
         member_id, total_classes, classes_remaining, purchase_date,
         expiry_date, amount_paid, notes, active
@@ -91,14 +128,17 @@ class ClassCoupon {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
-    
-    const values = [
-      member_id, total_classes, remaining, purchase_date || new Date(),
-      expiry_date, amount_paid, notes, active
-    ];
-    
-    const result = await db.query(query, values);
-    return result.rows[0];
+
+    try {
+      const insertResult = await db.query(insertQuery, values);
+      return insertResult.rows[0];
+    } catch (error) {
+      if (error.code === '23505') {
+        const retryUpdateResult = await db.query(updateQuery, values);
+        return retryUpdateResult.rows[0];
+      }
+      throw error;
+    }
   }
 
   static async update(id, couponData) {

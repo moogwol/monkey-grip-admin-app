@@ -15,6 +15,7 @@ services:
       - ./mg-backend/04-init-member-payments.sql:/docker-entrypoint-initdb.d/04-init-member-payments.sql:ro
       - ./mg-backend/05-init-indexes.sql:/docker-entrypoint-initdb.d/05-init-indexes.sql:ro
       - ./mg-backend/06-seed-data.sql:/docker-entrypoint-initdb.d/06-seed-data.sql:ro
+      - ./mg-backend/07-enforce-single-coupon-per-member.sql:/docker-entrypoint-initdb.d/07-enforce-single-coupon-per-member.sql:ro
     ports:
       - "5432:5432"  
 

@@ -150,7 +150,7 @@ router.post('/', validateCoupon, async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: 'Coupon created successfully',
+      message: 'Coupon created or topped up successfully',
       data: coupon
     });
   } catch (error) {

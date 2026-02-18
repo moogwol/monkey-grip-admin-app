@@ -255,69 +255,14 @@ export default function Member({ loaderData }: Route.ComponentProps) {
 
         <div className="coupons-section">
           <h3>Class Coupons</h3>
+          {coupons.length > 0 ? (
+          <h2>{coupons[0].classes_remaining}</h2>
+        ) : (
+          <p>No coupons available.</p>
+         )
+          }
 
-          {getActiveCoupons().length > 0 && (
-            <div className="active-coupons">
-              <h4>Active Coupons</h4>
-              <ul>
-                {getActiveCoupons().map(coupon => (
-                  <li key={coupon.id} className="coupon-item">
-                    <div className="coupon-info">
-                      <span className="coupon-type">
-                        {coupon.coupon_type.replace('_', ' ').toUpperCase()}
-                      </span>
-                      <span className="coupon-usage">
-                        {coupon.classes_used} / {coupon.classes_total} classes used
-                      </span>
-                      {coupon.expiry_date && (
-                        <span className="expiry-date">
-                          Expires: {formatDate(coupon.expiry_date)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress"
-                        style={{
-                          width: `${(coupon.classes_used / coupon.classes_total) * 100}%`,
-                          backgroundColor: '#007bff',
-                          height: '8px',
-                          borderRadius: '4px'
-                        }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {getUsedCoupons().length > 0 && (
-            <CouponsSection>
-              <h4>Used Coupons</h4>
-              <ul>
-                {getUsedCoupons().map(coupon => (
-                  <li key={coupon.id} className="coupon-item used">
-                    <div className="coupon-info">
-                      <span className="coupon-type">
-                        {coupon.coupon_type.replace('_', ' ').toUpperCase()}
-                      </span>
-                      <span className="coupon-usage">
-                        Completed ({coupon.classes_total} classes)
-                      </span>
-                      <span className="purchase-date">
-                        Purchased: {formatDate(coupon.purchase_date)}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </CouponsSection>
-          )}
-
-          {coupons.length === 0 && (
-            <p>No coupons purchased yet.</p>
-          )}
+         
         </div>
 
         <MemberActions>
