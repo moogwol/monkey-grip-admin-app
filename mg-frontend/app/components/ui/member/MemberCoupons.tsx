@@ -29,12 +29,22 @@ export const CouponItem = styled.li`
 `;
 
 export const CouponInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
+  display: inline-flex;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  margin: 0 auto 0.5rem;
+  background-color: #f8f9fa;  
+
+  h1 {
+    margin: 0;
+    min-width: 2ch;
+    text-align: center;
+  }
 `;
 
 export const ProgressBar = styled.div`
@@ -51,3 +61,9 @@ export const Progress = styled.div<{ $progress: number }>`
   width: ${props => props.$progress}%;
   transition: width 0.3s ease;
 `;
+
+export const CouponActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+

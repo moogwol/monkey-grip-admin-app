@@ -19,8 +19,12 @@ import {
   PaymentStatusLabel,
   PaymentStatusForm,
   PaymentStatusButton,
+  CouponActions,
+  CouponInfo,
 } from "../components";
 
+// Icons
+import { FaPlus, FaMinus } from "react-icons/fa6";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const memberId = params.memberId;
@@ -179,27 +183,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             size="large"
           />
 
-          <ContactDetails>
-            {member.email && (
-              <p>
-                <strong>Email: </strong>
-                <a href={`mailto:${member.email}`}>
-                  {member.email}
-                </a>
-              </p>
-            )}
-
-            {member.phone && (
-              <p>
-                <strong>Phone: </strong>
-                <a href={`tel:${member.phone}`}>
-                  {member.phone}
-                </a>
-              </p>
-            )}
-          </ContactDetails>
-
-          <p>
+               <p>
             <strong>Join Date:</strong> {formatDate(member.join_date)}
           </p>
 
@@ -253,17 +237,22 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           )}
         </div>
 
-        <div className="coupons-section">
+        <CouponsSection>
           <h3>Class Coupons</h3>
           {coupons.length > 0 ? (
-          <h2>{coupons[0].classes_remaining}</h2>
-        ) : (
-          <p>No coupons available.</p>
-         )
-          }
+            <CouponInfo>
+              <FaMinus onClick={() => {alert("minus button clicked")}} size={30} />
+              <h1>{coupons[0].classes_remaining}</h1>
+              <FaPlus onClick={() => {alert("plus button clicked")}} size={30} />
+            </CouponInfo>
 
-         
-        </div>
+          ) : (
+            <p>No coupons available.</p>
+          )
+          }
+        </CouponsSection>
+
+
 
         <MemberActions>
           {/* <Form action={`/members/${member.id}/edit`} */}
