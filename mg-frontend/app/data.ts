@@ -275,15 +275,28 @@ export async function deleteCoupon(id: string) {
   }
 }
 
-export async function useClass(couponId: string) {
+export async function useClass(couponId: string, classes = 1) {
   try {
-    const response = await apiClient.useClass(couponId);
+    const response = await apiClient.useClass(couponId, classes);
     if (response.success && response.data) {
       return response.data;
     }
     throw new Error(response.message || 'Failed to use class');
   } catch (error) {
     console.error('Failed to use class:', error);
+    throw error;
+  }
+}
+
+export async function addClasses(couponId: string, classes = 1) {
+  try {
+    const response = await apiClient.addCouponClasses(couponId, classes);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to add classes');
+  } catch (error) {
+    console.error('Failed to add classes:', error);
     throw error;
   }
 }

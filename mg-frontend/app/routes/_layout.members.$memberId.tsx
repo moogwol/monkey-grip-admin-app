@@ -1,4 +1,4 @@
-import { Form, useFetcher, useNavigate, redirect, Outlet } from "react-router";
+import { Form, useFetcher, useNavigate, redirect, Outlet, useRevalidator } from "react-router";
 import type { Route } from "../+types/root";
 import { getMember, deleteMember, getMemberCoupons, getPaymentPlans, createMemberPayment, getMemberPayments } from "../data";
 import {
@@ -25,6 +25,8 @@ import {
 
 // Icons
 import { FaPlus, FaMinus } from "react-icons/fa6";
+
+import { addClasses, useClass } from "../data";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const memberId = params.memberId;
@@ -71,6 +73,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
   const data = loaderData as any;
   const { member, coupons = [], plans = [], payments = [] } = data;
   const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
 
 
 
@@ -135,6 +138,18 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     return avatarUrl;
   };
 
+  const handleUseOneClass = async () => {
+    if (!coupons.length) return;
+    await useClass(String(coupons[0].id), 1);
+    revalidate();
+  };
+
+  const handleAddOneClass = async () => {
+    if (!coupons.length) return;
+    await addClasses(String(coupons[0].id), 1);
+    revalidate();
+  };
+
 
 
   return (
@@ -183,7 +198,7 @@ export default function Member({ loaderData }: Route.ComponentProps) {
             size="large"
           />
 
-               <p>
+          <p>
             <strong>Join Date:</strong> {formatDate(member.join_date)}
           </p>
 
@@ -241,9 +256,9 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           <h3>Class Coupons</h3>
           {coupons.length > 0 ? (
             <CouponInfo>
-              <FaMinus onClick={() => {alert("minus button clicked")}} size={30} />
+              <FaMinus onClick={handleUseOneClass} size={30} />
               <h1>{coupons[0].classes_remaining}</h1>
-              <FaPlus onClick={() => {alert("plus button clicked")}} size={30} />
+              <FaPlus onClick={handleAddOneClass} size={30} />
             </CouponInfo>
 
           ) : (

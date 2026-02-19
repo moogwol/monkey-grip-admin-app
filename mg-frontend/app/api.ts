@@ -1,10 +1,36 @@
 // API client for BJJ Club Management System
-// Prefer a relative `/api` during local dev so Vite's proxy handles requests
-// const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || ((import.meta as any).env?.DEV ? '/api' : 'http://localhost:3000/api');
+const resolveApiBaseUrl = () => {
+  const envApiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
+  const isDev = Boolean((import.meta as any).env?.DEV);
 
-const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_URL ||
-  ((import.meta as any).env?.DEV ? '/api' : 'http://mg-api:3000/api');
+  // Server-side/SSR inside Docker can resolve service names like `mg-api`.
+  if (typeof window === 'undefined') {
+    return envApiUrl || (isDev ? '/api' : 'http://mg-api:3000/api');
+  }
+
+  if (!envApiUrl) {
+    return isDev ? '/api' : `${window.location.protocol}//${window.location.hostname}:3000/api`;
+  }
+
+  if (envApiUrl.startsWith('/')) {
+    return envApiUrl;
+  }
+
+  try {
+    const parsed = new URL(envApiUrl);
+
+    // Browser cannot resolve Docker internal hostnames.
+    if (parsed.hostname === 'mg-api') {
+      return `${window.location.protocol}//${window.location.hostname}:3000${parsed.pathname}`;
+    }
+
+    return envApiUrl;
+  } catch {
+    return envApiUrl;
+  }
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 
 export interface ApiResponse<T> {
@@ -216,9 +242,17 @@ export const apiClient = {
     });
   },
 
-  async useClass(couponId: string): Promise<ApiResponse<ClassCouponRecord>> {
+  async useClass(couponId: string, classes = 1): Promise<ApiResponse<ClassCouponRecord>> {
     return apiRequest<ApiResponse<ClassCouponRecord>>(`/coupons/${couponId}/use`, {
       method: 'PATCH',
+      body: JSON.stringify({ classes }),
+    });
+  },
+
+  async addCouponClasses(couponId: string, classes = 1): Promise<ApiResponse<ClassCouponRecord>> {
+    return apiRequest<ApiResponse<ClassCouponRecord>>(`/coupons/${couponId}/add-classes`, {
+      method: 'PATCH',
+      body: JSON.stringify({ classes }),
     });
   },
 
