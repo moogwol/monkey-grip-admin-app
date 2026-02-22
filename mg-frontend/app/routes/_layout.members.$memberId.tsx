@@ -1,6 +1,6 @@
-import { Form, useFetcher, useNavigate, redirect, Outlet, useRevalidator } from "react-router";
+import { Form, useNavigate, useRevalidator } from "react-router";
 import type { Route } from "../+types/root";
-import { getMember, deleteMember, getMemberCoupons, getPaymentPlans, createMemberPayment, getMemberPayments } from "../data";
+import { getMember, getMemberCoupons, getPaymentPlans, getMemberPayments } from "../data";
 import {
   MemberProfile,
   MemberBanner,
@@ -8,10 +8,8 @@ import {
   MemberHeader,
   MemberContent,
   MemberDetails,
-  ContactDetails,
   CouponsSection,
   MemberActions,
-  MemberInfo,
   BeltGraphic,
   PaymentStatusBadge,
   PaymentStatusSelector,
@@ -49,21 +47,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   return { member, coupons, plans, payments };
 }
 
-export async function action({ params, request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const planIdValue = formData.get('membership_plan_id') as string;
-  const memberId = params.memberId;
-  if (!memberId) {
-    throw new Response("Member ID is required", { status: 400 });
-  }
-  if (!planIdValue) {
-    throw new Response("Membership plan is required", { status: 400 });
-  }
-  await createMemberPayment(memberId, {
-    membership_plan_id: Number(planIdValue)
-  });
-  return redirect(`/members/${memberId}`);
-}
+
 
 export default function Member({ loaderData }: Route.ComponentProps) {
   if (!loaderData) {
@@ -210,7 +194,10 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           )}
         </MemberDetails>
         <PaymentStatusSelector>
-          <PaymentStatusForm as="form" method="post">
+          {/* <PaymentStatusForm as="form" method="post"> */}
+          <PaymentStatusForm as={Form}
+           action="record-payment"
+           method="post">
             <PaymentStatusLabel htmlFor="payment-status-select">Record Payment Plan:</PaymentStatusLabel>
             <PaymentStatusSelect
               id="payment-status-select"

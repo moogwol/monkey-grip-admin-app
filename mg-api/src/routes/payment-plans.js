@@ -20,6 +20,41 @@ router.get("/", async (req, res) => {
     }
 });
 
+// Get a payment plan by id
+router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+
+    if (!/^\d+$/.test(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid payment plan ID"
+        });
+    }
+
+    const query = "SELECT * FROM membership_plans WHERE id = $1";
+    try {
+        const result = await db.query(query, [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment plan not found"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Error fetching payment plan:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+});
+
 // Add a new payment plan
 router.post("/", async (req, res) => {
     const { name, price, description, active } = req.body;

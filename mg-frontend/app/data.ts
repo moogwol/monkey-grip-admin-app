@@ -169,6 +169,19 @@ export async function getPaymentPlans(activeOnly = true) {
   }
 }
 
+export async function getPaymentPlan(id: string) {
+  try {
+    const response = await apiClient.getPaymentPlan(id);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch payment plan:', error);
+    return null;
+  }
+}
+
 export async function getMemberPayments(memberId: string) {
   try {
     const response = await apiClient.getMemberPayments(memberId);

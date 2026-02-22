@@ -191,6 +191,10 @@ export const apiClient = {
     return apiRequest<ApiResponse<MembershipPlanRecord[]>>(`/payment-plans${query}`);
   },
 
+  async getPaymentPlan(id: string): Promise<ApiResponse<MembershipPlanRecord>> {
+    return apiRequest<ApiResponse<MembershipPlanRecord>>(`/payment-plans/${id}`);
+  },
+
   async getMemberPayments(memberId: string): Promise<ApiResponse<MemberPaymentRecord[]>> {
     return apiRequest<ApiResponse<MemberPaymentRecord[]>>(`/members/${memberId}/payments`);
   },
@@ -293,6 +297,7 @@ export interface MembershipPlanRecord {
   price: string | number | null;
   description?: string | null;
   active: boolean;
+  is_coupon_plan?: boolean;
 }
 
 // Class Coupon type matching actual database schema
