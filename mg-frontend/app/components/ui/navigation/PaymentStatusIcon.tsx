@@ -1,54 +1,59 @@
+import type { IconType } from "react-icons";
 import styled from "styled-components";
+
+// Icons
+import { IoIosWarning } from "react-icons/io";
+import { FaTicketSimple, FaSquareCheck } from "react-icons/fa6";
 
 type PaymentStatusIconProps = {
   $status?: string;
+  isCouponPlan?: boolean;
 };
 
-const IconWrapper = styled.span<PaymentStatusIconProps>`
+type StatusColour = "success" | "warning" | "danger";
+type StatusVisual = { icon: IconType; color: StatusColour; title: string };
+
+const STATUS_COLORS: Record<StatusColour, string> = {
+  danger: "#dc3545",
+  warning: "#ffc107",
+  success: "#28a745",
+};
+
+const IconWrapper = styled.span<{ $color: StatusColour }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
   opacity: 0.9;
-  
-  ${(props) => {
-    const status = (props.$status || "").toLowerCase();
-    if (status === "overdue") {
-      return `color: #dc3545;`; // Red for overdue
-    }
-    if (status.includes("coupon")) {
-      return `color: #ffc107;`; // Yellow for coupon
-    }
-    return `color: #28a745;`; // Green for paid statuses
-  }}
+  color: ${({ $color }) => STATUS_COLORS[$color]};
 `;
 
-export const PaymentStatusIcon = ({ $status }: PaymentStatusIconProps) => {
-  const status = ($status || "").toLowerCase();
-  
-  if (status === "overdue") {
-    return (
-      <IconWrapper $status={$status} title="Overdue">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
-        </svg>
-      </IconWrapper>
-    );
+export const STATUS_VISUALS: Record<string, StatusVisual> = {
+  overdue: { icon: IoIosWarning, color: "danger", title: "Overdue" },
+  coupon: { icon: FaTicketSimple, color: "warning", title: "Coupon Package" },
+  paid: { icon: FaSquareCheck, color: "success", title: "Paid" },
+};
+
+const getStatusVisual = (status?: string, isCouponPlan?: boolean): StatusVisual => {
+  const normalizedStatus = (status || "").toLowerCase();
+
+  if (isCouponPlan) {
+    return STATUS_VISUALS.coupon;
   }
-  if (status.includes("coupon")) {
-    return (
-      <IconWrapper $status={$status} title="Coupon Package">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-1.99.9-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-4.42 4.8L12 14.5l-3.58 2.3 1.08-4.12-3.29-2.69 4.24-.25L12 5.8l1.55 3.95 4.24.25-3.29 2.69 1.08 4.11z"/>
-        </svg>
-      </IconWrapper>
-    );
+
+  if (normalizedStatus === "overdue") {
+    return STATUS_VISUALS.overdue;
   }
+
+  return STATUS_VISUALS.paid;
+};
+
+export const PaymentStatusIcon = ({ $status, isCouponPlan }: PaymentStatusIconProps) => {
+  const { icon: Icon, color, title } = getStatusVisual($status, isCouponPlan);
+
   return (
-    <IconWrapper $status={$status} title="Paid">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
+    <IconWrapper $color={color} title={title} aria-label={title}>
+      <Icon size={16} />
     </IconWrapper>
   );
 };

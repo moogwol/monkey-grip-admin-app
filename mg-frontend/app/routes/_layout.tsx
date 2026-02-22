@@ -11,12 +11,13 @@ import {
     useSubmit,
     useLocation,
 } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { Route } from "../+types/root";
 
 import appStylesHref from "../app.css?url";
 
-import { getMembers, createEmptyMember } from "../data"
+import { getMembers, createEmptyMember, getPaymentPlans } from "../data"
+import type { MembershipPlanRecord } from "../api";
 import { requireAuth } from "../auth";
 import {
     StyledNavLink,
@@ -30,16 +31,7 @@ import {
 } from "../components";
 
 
-// // Loader function to fetch members data and check authentication
-// export async function loader({ request }: Route.LoaderArgs) {
-//     // Check if user is authenticated
-//     await requireAuth();
 
-//     const url = new URL(request.url);
-//     const q = url.searchParams.get("q");
-//     const members = await getMembers(q);
-//     return { members, q };
-// }
 
 export async function loader({ request }: Route.LoaderArgs) {
     const cookie = request.headers.get("cookie") || "";
@@ -50,8 +42,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
     const members = await getMembers(q, cookie);
+    // Get the list of payment plans
+    const paymentPlans = await getPaymentPlans(false);
 
-    return { members, q };
+    return { members, q, paymentPlans };
 }
 
 
@@ -61,11 +55,12 @@ type Member = {
     last_name: string;
     belt_rank: string;
     payment_status: string;
+    latest_membership_plan_id?: number | null;
     stripes: number;
 };
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
-    const { members, q }: { members: Member[]; q: string | null } = loaderData ?? { members: [], q: null };
+    const { members, q, paymentPlans }: { members: Member[]; q: string | null; paymentPlans: MembershipPlanRecord[] } = loaderData ?? { members: [], q: null, paymentPlans: [] };
 
     const navigation = useNavigation();
     const location = useLocation();
@@ -73,6 +68,14 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     const searching =
         navigation.location &&
         new URLSearchParams(navigation.location.search).has("q");
+
+    const couponPlanById = useMemo(
+        () =>
+            new Map(
+                paymentPlans.map((plan) => [Number(plan.id), Boolean(plan.is_coupon_plan)])
+            ),
+        [paymentPlans]
+    );
 
     useEffect(() => {
         const searchfield = document.getElementById("q");
@@ -137,6 +140,9 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             {members.map((member) => {
                                 const isActive = location.pathname === `/members/${member.id}`;
                                 const isPending = navigation.state === "loading";
+                                const isCouponPlan =
+                                    member.latest_membership_plan_id != null &&
+                                    couponPlanById.get(Number(member.latest_membership_plan_id)) === true;
 
                                 return (
                                     <li key={member.id}>
@@ -147,7 +153,10 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                                             {member.first_name || member.last_name ? (
                                                 <>
                                                     {member.first_name} {member.last_name}
-                                                    <PaymentStatusIcon $status={member.payment_status} />
+                                                    <PaymentStatusIcon
+                                                        $status={member.payment_status}
+                                                        isCouponPlan={isCouponPlan}
+                                                    />
                                                     <BeltGraphic
                                                         beltColor={member.belt_rank}
                                                         stripes={member.stripes}
