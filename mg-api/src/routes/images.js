@@ -11,6 +11,45 @@ router.get('/test', (req, res) => {
     res.json({ message: 'Images router is working!' });
 });
 
+// Image health route (proxy + storage quick check)
+router.get('/health', async (req, res) => {
+    try {
+        const basePath = process.env.IMAGE_STORAGE_PATH || '/data/images';
+        const memberImagesPath = path.join(basePath, 'member-images');
+
+        const basePathExists = fs.existsSync(basePath);
+        const memberImagesPathExists = fs.existsSync(memberImagesPath);
+
+        let sampleFile = null;
+        if (memberImagesPathExists) {
+            const files = await fs.promises.readdir(memberImagesPath);
+            sampleFile = files.find((f) => f.toLowerCase().endsWith('.jpg') || f.toLowerCase().endsWith('.jpeg')) || null;
+        }
+
+        res.json({
+            success: true,
+            message: 'Images health check',
+            storage: {
+                basePath,
+                basePathExists,
+                memberImagesPathExists
+            },
+            sample: sampleFile
+                ? {
+                    filename: sampleFile,
+                    serveUrl: `/api/images/serve/member-images/${sampleFile}`
+                }
+                : null
+        });
+    } catch (error) {
+        console.error('❌ Image health check failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Image health check failed'
+        });
+    }
+});
+
 router.post('/members/:memberId/profile-image',
     upload.single('profileImage'),
     async (req, res) => {

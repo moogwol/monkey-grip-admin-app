@@ -33,6 +33,13 @@ const API_BASE_URL =
   (import.meta as any).env?.VITE_API_URL ||
   ((import.meta as any).env?.DEV ? "/api" : "http://mg-api:3000/api");
 
+const resolveServerApiBase = () => {
+  if (API_BASE_URL.startsWith('/')) {
+    return `http://mg-api:3000${API_BASE_URL}`;
+  }
+  return API_BASE_URL;
+};
+
 export async function action({ request }: Route.ActionArgs) {
   if (request.method !== "POST") {
     return redirect("/login");
@@ -40,7 +47,8 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const incomingCookie = request.headers.get("cookie");
-    const apiResponse = await fetch(`${API_BASE_URL}/auth/logout`, {
+    const apiBase = typeof window === 'undefined' ? resolveServerApiBase() : API_BASE_URL;
+    const apiResponse = await fetch(`${apiBase}/auth/logout`, {
       method: "POST",
       headers: incomingCookie ? { cookie: incomingCookie } : undefined,
     });

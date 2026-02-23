@@ -5,11 +5,14 @@ const resolveApiBaseUrl = () => {
 
   // Server-side/SSR inside Docker can resolve service names like `mg-api`.
   if (typeof window === 'undefined') {
-    return envApiUrl || (isDev ? '/api' : 'http://mg-api:3000/api');
+    if (envApiUrl) {
+      return envApiUrl.startsWith('/') ? `http://mg-api:3000${envApiUrl}` : envApiUrl;
+    }
+    return isDev ? '/api' : 'http://mg-api:3000/api';
   }
 
   if (!envApiUrl) {
-    return isDev ? '/api' : `${window.location.protocol}//${window.location.hostname}:3000/api`;
+    return isDev ? '/api' : `${window.location.origin}/api`;
   }
 
   if (envApiUrl.startsWith('/')) {
@@ -21,7 +24,7 @@ const resolveApiBaseUrl = () => {
 
     // Browser cannot resolve Docker internal hostnames.
     if (parsed.hostname === 'mg-api') {
-      return `${window.location.protocol}//${window.location.hostname}:3000${parsed.pathname}`;
+      return `${window.location.origin}${parsed.pathname}`;
     }
 
     return envApiUrl;

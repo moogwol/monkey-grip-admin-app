@@ -84,8 +84,22 @@ class ImageService {
   }
 
   generatePublicUrl(bucket, filename) {
-    const apiBaseUrl = process.env.API_BASE_URL || '';
-    return `${apiBaseUrl}/api/images/serve/${bucket}/${filename}`;
+    const routePath = `/api/images/serve/${bucket}/${filename}`;
+    const apiBaseUrl = (process.env.API_BASE_URL || '').trim();
+
+    if (!apiBaseUrl) {
+      return routePath;
+    }
+
+    try {
+      const parsed = new URL(apiBaseUrl);
+      if (['mg-api', 'localhost', '127.0.0.1'].includes(parsed.hostname)) {
+        return routePath;
+      }
+      return `${parsed.origin}${routePath}`;
+    } catch {
+      return routePath;
+    }
   }
 }
 

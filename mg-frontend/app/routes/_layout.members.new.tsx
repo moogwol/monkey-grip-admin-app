@@ -51,8 +51,7 @@ export async function action({ request }: Route.ActionArgs) {
             const env = (import.meta as any).env || {};
             let apiUrl = env.VITE_API_URL || (env.DEV ? '/api' : 'http://mg-api:3000/api');
             if (apiUrl.startsWith('/')) {
-                const origin = new URL(request.url).origin;
-                apiUrl = `${origin}${apiUrl}`;
+                apiUrl = `http://mg-api:3000${apiUrl}`;
             }
 
             const incomingCookie = request.headers.get('cookie');

@@ -75,44 +75,25 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     return coupons.filter((coupon: any) => coupon.classes_used >= coupon.classes_total);
   };
 
-  const getApiOrigin = () => {
-    const envApiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
-    if (envApiUrl) {
-      if (envApiUrl.startsWith('http://') || envApiUrl.startsWith('https://')) {
-        const parsed = new URL(envApiUrl);
-        if (parsed.hostname !== 'mg-api') {
-          return parsed.origin;
-        }
-      }
-    }
-
-    if (typeof window !== 'undefined') {
-      return `${window.location.protocol}//${window.location.hostname}:3000`;
-    }
-
-    return 'http://localhost:3000';
-  };
-
   const resolveAvatarUrl = (avatarUrl?: string | null) => {
     if (!avatarUrl) return '';
 
     if (avatarUrl.startsWith('/api/')) {
-      const isDev = Boolean((import.meta as any).env?.DEV);
-      return isDev ? avatarUrl : `${getApiOrigin()}${avatarUrl}`;
+      return avatarUrl;
     }
 
     if (avatarUrl.startsWith('/')) {
-      return `${getApiOrigin()}${avatarUrl}`;
+      return avatarUrl;
     }
 
     if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
       try {
         const parsed = new URL(avatarUrl);
+        if (parsed.pathname.startsWith('/api/')) {
+          return typeof window !== 'undefined' ? `${window.location.origin}${parsed.pathname}` : parsed.pathname;
+        }
         if (parsed.hostname === 'mg-api') {
-          parsed.protocol = typeof window !== 'undefined' ? window.location.protocol : parsed.protocol;
-          parsed.hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-          parsed.port = '3000';
-          return parsed.toString();
+          return parsed.pathname;
         }
       } catch {
         return avatarUrl;

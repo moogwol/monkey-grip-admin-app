@@ -49,9 +49,9 @@ services:
     build:
       context: ./mg-frontend
       args:
-        VITE_API_URL: http://mg-api:3000/api
+        VITE_API_URL: /api
     environment:
-      - VITE_API_URL=http://mg-api:3000/api
+      - VITE_API_URL=/api
     depends_on:
       - mg-api
     command: ["npm", "run", "start"]
