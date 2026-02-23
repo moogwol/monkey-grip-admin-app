@@ -23,6 +23,25 @@ npm run dev
 
 This starts your app in development mode, rebuilding assets on file changes.
 
+### Docker Dev (with Nginx proxy)
+
+If you run the full stack with Docker Compose and the dev Nginx proxy:
+
+```sh
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+Use these URLs:
+
+- `http://localhost` → app through Nginx (recommended)
+- `http://localhost:5173` → frontend dev server directly
+- `http://localhost:3000` → API directly
+
+The proxy config is in `nginx/dev.nginx.conf` and routes:
+
+- `/` to `mg-frontend:5173`
+- `/api/` to `mg-api:3000/api/`
+
 ## Deployment
 
 First, build your app for production:
