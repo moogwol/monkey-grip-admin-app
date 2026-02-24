@@ -7,7 +7,6 @@ import {
     isRouteErrorResponse,
     useNavigation,
     useNavigate,
-    redirect,
     useSubmit,
     useLocation,
 } from "react-router";
@@ -18,12 +17,13 @@ import appStylesHref from "../app.css?url";
 
 import { getMembers, createEmptyMember, getPaymentPlans } from "../data"
 import type { MembershipPlanRecord } from "../api";
-import { requireAuth } from "../auth";
+import { requireAuth, getCurrentUserIfAuthenticated } from "../auth";
 import {
     StyledNavLink,
     Sidebar,
     SidebarTitle,
     SidebarControls,
+    SidebarWelcomeMessage,
     SearchSpinner,
     StyledNav,
     BeltGraphic,
@@ -39,7 +39,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     const cookie = request.headers.get("cookie") || "";
 
     // Check if user is authenticated
-    await requireAuth(cookie);
+    // await requireAuth(cookie);
+    const currentUser = await requireAuth(cookie);
 
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
@@ -47,7 +48,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     // Get the list of payment plans
     const paymentPlans = await getPaymentPlans(false);
 
-    return { members, q, paymentPlans };
+    return { members, q, paymentPlans, currentUser };
 }
 
 
@@ -61,8 +62,23 @@ type Member = {
     stripes: number;
 };
 
+type SidebarLoaderData = {
+  members: Member[];
+  q: string | null;
+  paymentPlans: MembershipPlanRecord[];
+  currentUser: { full_name: string } | null;
+};
+
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
-    const { members, q, paymentPlans }: { members: Member[]; q: string | null; paymentPlans: MembershipPlanRecord[] } = loaderData ?? { members: [], q: null, paymentPlans: [] };
+   
+ const data = (loaderData ?? {
+    members: [],
+    q: null,
+    paymentPlans: [],
+    currentUser: null,
+  }) as SidebarLoaderData;
+
+  const { members, q, paymentPlans, currentUser } = data;
 
     const navigation = useNavigation();
     const location = useLocation();
@@ -87,12 +103,19 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     }, [q]);
 
 
+
     return (
         <>
             <Sidebar>
                 <SidebarTitle>
                     <Link to="/">Monkey Grip Admin</Link>
                 </SidebarTitle>
+                <SidebarWelcomeMessage>
+                    Logged in as {currentUser?.full_name}
+                </SidebarWelcomeMessage>
+                <LogoutButtonContainer as="Form" method="post" action="/logout">
+                    <LogoutButton type="submit">Logout</LogoutButton>
+                </LogoutButtonContainer>
                 <SidebarControls>
                     <Form
                         id="search-form"
@@ -118,10 +141,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                     <Link to="/members/new" >
                         <button type="submit">New</button>
                     </Link>
-                </SidebarControls>             
-                <LogoutButtonContainer as="Form" method="post" action="/logout">
-                    <LogoutButton type="submit">Logout</LogoutButton>
-                </LogoutButtonContainer>
+                </SidebarControls>
                 <StyledNav>
                     {members.length ? (
                         <ul>

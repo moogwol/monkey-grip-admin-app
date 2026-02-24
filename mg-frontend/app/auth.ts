@@ -17,15 +17,6 @@ export async function requireAuth(cookie?: string) {
   }
 }
 
-// export async function requireAuth(cookie: string) {
-//   const user = await apiClient.getCurrentUser({
-//     headers: { cookie }
-//   });
-
-//   if (!user?.success) {
-//     throw redirect('/login');
-//   }
-// }
 
 
 // Optional: Get current user if authenticated, return null otherwise
