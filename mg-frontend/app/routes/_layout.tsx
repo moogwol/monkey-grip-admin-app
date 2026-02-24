@@ -28,6 +28,8 @@ import {
     StyledNav,
     BeltGraphic,
     PaymentStatusIcon,
+    LogoutButton,
+    LogoutButtonContainer,
 } from "../components";
 
 
@@ -113,27 +115,13 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                             hidden={!searching}
                         />
                     </Form>
-                        <Link to="/members/new" >
-                            <button type="submit">New</button>
-                        </Link>
-                </SidebarControls>
-                <Form method="post" action="/logout" style={{ padding: '1rem 0' }}>
-                    <button 
-                        type="submit" 
-                        style={{
-                            width: '100%',
-                            padding: '0.5rem 1rem',
-                            background: '#f0f0f0',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            color: '#666'
-                        }}
-                    >
-                        🚪 Logout
-                    </button>
-                </Form>
+                    <Link to="/members/new" >
+                        <button type="submit">New</button>
+                    </Link>
+                </SidebarControls>             
+                <LogoutButtonContainer as="Form" method="post" action="/logout">
+                    <LogoutButton type="submit">Logout</LogoutButton>
+                </LogoutButtonContainer>
                 <StyledNav>
                     {members.length ? (
                         <ul>
