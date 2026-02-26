@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# ops/api/get-members.sh
+# Usage: ./ops.sh api update-coupon-status
+
+API_URL="${API_URL:-http://localhost/api/member-payments}"
+
+# For member with payment types with is_coupon_plan set to true, sets payment type to "Bono anterior"
+# This script should be run at the beginning of each month
+
+SQL = "Update
+curl -fsSL -X PUT "$API_URL/update-coupon-status" | json .

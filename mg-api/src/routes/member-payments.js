@@ -117,4 +117,36 @@ router.post('/:id/payments', validateMemberPayment, async (req, res) => {
   }
 });
 
+// check each member payment status. If the status has is_coupon_plan = true,
+//  the payment status should be set to bono anterior
+router.put('/update-coupon-status', async (req, res) => {
+  const query = `
+  UPDATE member_payments
+  SET payment_status = 'Bono anterior'
+  WHERE membership_plan_id IN (
+    SELECT id FROM membership_plans WHERE is_coupon_plan = true
+  )
+  AND payment_status != 'Bono anterior'
+  RETURNING *
+`;
+  try {
+    const result = await db.query(query);
+
+    res.json({
+      success: true,
+      message: 'Coupon payment statuses updated successfully',
+      data: result.rows,
+      count: result.rowCount
+    });
+  } catch (error) {
+    console.error('Error updating coupon payment statuses:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+
+
 module.exports = router;

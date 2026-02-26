@@ -115,14 +115,15 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     revalidate();
   };
 
+  console.log("Latest payment status:", member.latest_payment_status);
 
 
   return (
     <MemberProfile>
       <MemberBanner>
-        <PaymentStatusBadge $status={member.payment_status || 'overdue'}>
-          {((member.payment_status || 'overdue').charAt(0).toUpperCase() +
-            (member.payment_status || 'overdue').slice(1))}
+        <PaymentStatusBadge $status={member.latest_payment_status || 'overdue'}>
+          {((member.latest_payment_status || 'overdue').charAt(0).toUpperCase() +
+            (member.latest_payment_status || 'overdue').slice(1))}
         </PaymentStatusBadge>
 
         <MemberAvatar>
