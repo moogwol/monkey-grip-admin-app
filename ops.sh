@@ -32,6 +32,7 @@ DATE_TAG="$(date +%Y%m%d-%H%M%S)"
 
 cd "${PROJECT_DIR}"
 
+
 cmd_api() {
   local script="${1:-}"
   shift || true
@@ -44,6 +45,23 @@ cmd_api() {
   local script_path="ops/api/${script}.sh"
   if [[ ! -x "$script_path" ]]; then
     echo "API script not found: $script_path"
+    exit 1
+  fi
+  "$script_path" "$@"
+}
+
+cmd_db() {
+  local script="${1:-}"
+  shift || true
+  if [[ -z "$script" ]]; then
+    echo "Usage: ./ops.sh db <script> [args...]"
+    echo "Available scripts:"
+    ls ops/db/*.sh | xargs -n1 basename | sed 's/\\.sh$//'
+    exit 1
+  fi
+  local script_path="ops/db/${script}.sh"
+  if [[ ! -x "$script_path" ]]; then
+    echo "DB script not found: $script_path"
     exit 1
   fi
   "$script_path" "$@"
@@ -64,13 +82,8 @@ main() {
       fi
       "$script_path" "$@"
       ;;
-    db-backup)
-      script_path="ops/db/backup.sh"
-      if [[ ! -x "$script_path" ]]; then
-        echo "DB script not found: $script_path"
-        exit 1
-      fi
-      "$script_path" "$@"
+    db)
+      cmd_db "$@"
       ;;
     disk)
       script_path="ops/docker/disk.sh"

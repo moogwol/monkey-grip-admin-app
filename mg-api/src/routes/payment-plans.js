@@ -57,10 +57,11 @@ router.get("/:id", async (req, res) => {
 
 // Add a new payment plan
 router.post("/", async (req, res) => {
-    const { name, price, description, active } = req.body;
-    const query = "INSERT INTO membership_plans (name, price, description, active) VALUES ($1, $2, $3, $4) RETURNING *";
+    const { name, price, description, active, is_coupon_plan } = req.body;
+    const query = "INSERT INTO membership_plans (name, price, description, active, is_coupon_plan) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     try {
-        const result = await db.query(query, [name, price, description, active]);
+        const result = await db.query(query, [name, price, description, active, is_coupon_plan]);
+              
         res.json({
             success: true,
             data: result.rows[0]
