@@ -4,6 +4,6 @@
 
 API_URL="${API_URL:-http://localhost/api/members}"
 
-curl -fsSL "$API_URL" | json data | json -a first_name last_name latest_payment_status
+curl -fsSL "$API_URL" | json data | json 
 
 
