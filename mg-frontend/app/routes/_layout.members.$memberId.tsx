@@ -115,15 +115,22 @@ export default function Member({ loaderData }: Route.ComponentProps) {
     revalidate();
   };
 
-  console.log("Latest payment status:", member.latest_payment_status);
+  const memberPaymentStatus = () => {
+    if (member.latest_payment_status === "Bono anterior") {
+      return "Bono anterior";
+    } else {
+      return member.payment_status || "overdue";
+    }
+  };
+
 
 
   return (
     <MemberProfile>
-      <MemberBanner>
-        <PaymentStatusBadge $status={member.latest_payment_status || 'overdue'}>
-          {((member.latest_payment_status || 'overdue').charAt(0).toUpperCase() +
-            (member.latest_payment_status || 'overdue').slice(1))}
+      <MemberBanner> 
+        <PaymentStatusBadge $status={memberPaymentStatus()}>
+          {((memberPaymentStatus()).charAt(0).toUpperCase() +
+            (memberPaymentStatus()).slice(1))}
         </PaymentStatusBadge>
 
         <MemberAvatar>
