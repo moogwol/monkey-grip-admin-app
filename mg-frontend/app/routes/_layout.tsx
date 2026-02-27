@@ -10,7 +10,7 @@ import {
     useSubmit,
     useLocation,
 } from "react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Route } from "../+types/root";
 
 import appStylesHref from "../app.css?url";
@@ -87,6 +87,8 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
         navigation.location &&
         new URLSearchParams(navigation.location.search).has("q");
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
     const couponPlanById = useMemo(
         () =>
@@ -104,10 +106,29 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     }, [q]);
 
 
+    const handleSidebarToggle = () => {
+        setSidebarOpen((prev) => !prev);
+    };
 
     return (
         <>
-            <Sidebar>
+            {!sidebarOpen && (
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    style={{
+                        position: "fixed",
+                        top: "1rem",
+                        left: "1rem",
+                        zIndex: 1001,
+                        display: "block", // or use a styled-component with media queries
+                    }}
+                    aria-label="Open sidebar"
+                >
+                    ☰
+                </button>
+            )}
+            <Sidebar open={sidebarOpen}>
+                <button onClick={() => setSidebarOpen(false)}>Close sidebar</button>
                 <SidebarTitle>
                     <Link to="/">Monkey Grip Admin</Link>
                 </SidebarTitle>
