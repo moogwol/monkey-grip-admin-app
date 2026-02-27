@@ -23,14 +23,20 @@ import {
   QuickActionButton,
 } from "../components";
 
+
 export async function loader() {
   const stats = await getMemberStats();
   return { stats };
 }
 
+
+
+
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { stats } = loaderData || { stats: null };
   const currentMonthTotalPaid = Number((stats as any)?.current_month_total_paid || 0);
+
+  
 
   return (
     <IndexPageContainer>

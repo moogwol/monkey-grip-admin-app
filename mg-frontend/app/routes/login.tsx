@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData, useNavigation } from "react-router";
+import { Form, redirect, useActionData, useNavigation, useLocation } from "react-router";
 import type { Route } from "../+types/root";
 import { apiClient } from "../api";
 import styled from "styled-components";
@@ -90,8 +90,10 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function LoginPage({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
+  const location = useLocation();
   const isSubmitting = navigation.state === 'submitting';
   const actionResult = actionData as { error?: string } | undefined;
+
 
   return (
     <LoginContainer>

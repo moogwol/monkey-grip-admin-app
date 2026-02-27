@@ -63,22 +63,22 @@ type Member = {
 };
 
 type SidebarLoaderData = {
-  members: Member[];
-  q: string | null;
-  paymentPlans: MembershipPlanRecord[];
-  currentUser: { full_name: string } | null;
+    members: Member[];
+    q: string | null;
+    paymentPlans: MembershipPlanRecord[];
+    currentUser: { full_name: string } | null;
 };
 
 export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
-   
- const data = (loaderData ?? {
-    members: [],
-    q: null,
-    paymentPlans: [],
-    currentUser: null,
-  }) as SidebarLoaderData;
 
-  const { members, q, paymentPlans, currentUser } = data;
+    const data = (loaderData ?? {
+        members: [],
+        q: null,
+        paymentPlans: [],
+        currentUser: null,
+    }) as SidebarLoaderData;
+
+    const { members, q, paymentPlans, currentUser } = data;
 
     const navigation = useNavigation();
     const location = useLocation();
@@ -86,6 +86,7 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     const searching =
         navigation.location &&
         new URLSearchParams(navigation.location.search).has("q");
+
 
     const couponPlanById = useMemo(
         () =>
