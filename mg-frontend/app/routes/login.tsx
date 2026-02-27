@@ -2,7 +2,7 @@ import { Form, redirect, useActionData, useNavigation, useLocation } from "react
 import type { Route } from "../+types/root";
 import { apiClient } from "../api";
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   LoginContainer,
@@ -88,6 +88,14 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
+// Fixes hydration mismatch by only rendering the form on the client after mount
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? children : null;
+}
+
+
 export default function LoginPage({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const location = useLocation();
@@ -105,37 +113,39 @@ export default function LoginPage({ actionData }: Route.ComponentProps) {
           {actionResult?.error}
         </LoginErrorAlert>
 
-        <Form method="POST">
-          <LoginFormGroup>
-            <LoginLabel htmlFor="username">Username</LoginLabel>
-            <LoginInput
-              type="text"
-              id="username"
-              name="username"
-              required
-              disabled={isSubmitting}
-              placeholder="Enter your username"
-              autoComplete="username"
-            />
-          </LoginFormGroup>
+        <ClientOnly>
+          <Form method="POST">
+            <LoginFormGroup>
+              <LoginLabel htmlFor="username">Username</LoginLabel>
+              <LoginInput
+                type="text"
+                id="username"
+                name="username"
+                required
+                disabled={isSubmitting}
+                placeholder="Enter your username"
+                autoComplete="username"
+              />
+            </LoginFormGroup>
 
-          <LoginFormGroup>
-            <LoginLabel htmlFor="password">Password</LoginLabel>
-            <LoginInput
-              type="password"
-              id="password"
-              name="password"
-              required
-              disabled={isSubmitting}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-            />
-          </LoginFormGroup>
+            <LoginFormGroup>
+              <LoginLabel htmlFor="password">Password</LoginLabel>
+              <LoginInput
+                type="password"
+                id="password"
+                name="password"
+                required
+                disabled={isSubmitting}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+              />
+            </LoginFormGroup>
 
-          <LoginSubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
-          </LoginSubmitButton>
-        </Form>
+            <LoginSubmitButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            </LoginSubmitButton>
+          </Form>
+        </ClientOnly>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#666', fontSize: '0.9rem' }}>
           Demo credentials: <strong>admin</strong> / <strong>admin123</strong>
