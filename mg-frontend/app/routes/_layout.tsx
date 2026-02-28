@@ -212,8 +212,8 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
             </Sidebar>
             <div
                 className={
-                    navigation.state === "loading" ? "loading" : ""
-                }
+                    navigation.state === "loading" ? "loading" : ""                 
+                }         
                 id="detail">
                 <Outlet />
             </div>

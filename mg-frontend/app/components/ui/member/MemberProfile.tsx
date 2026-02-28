@@ -3,15 +3,20 @@ import styled from "styled-components";
 export const MemberProfile = styled.div`
   display: flex;
   flex-direction: column;
-  // gap: 2rem;
+  gap: 2rem;
   max-width: 40rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 0.5rem;
+  }
 `;
 
 export const MemberContent = styled.div`
   display: flex;
   flex-direction: column;
   // border: 1px solid #e3e3e3;
-  padding: 2rem;
+  padding: 2px;
   // gap: 1.5rem;
 `;
 
