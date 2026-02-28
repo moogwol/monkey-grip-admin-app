@@ -6,21 +6,26 @@ export const LogoutButtonContainer = styled.form`
 `;
 
 export const LogoutButton = styled.button`
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #007bff;    // blue color for logout button
-    color: white;
+    flex: 1 1 0;
+    padding: 12px 24px;
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: all 0.2s;
-    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
     font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s ease;
+    background-color: #007bff;
+    color: white;
 
     &:hover {
-        background-color: #007bffcc; // slightly lighter on hover
+        background-color: #0056b3;
     }
     &:active {
-        background-color: #c72c3b;
+        background-color: #004085;
+    }
+    &:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
     }
 `;

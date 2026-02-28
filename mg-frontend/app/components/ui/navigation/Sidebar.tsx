@@ -10,7 +10,6 @@ export const Sidebar = styled.div<SidebarProps>`
   max-width: 22rem;
   background-color: #f7f7f7;
   border-right: solid 1px #e3e3e3;
-  display: flex;
   display: ${props => (props.open ? 'flex' : 'none')} ;
   flex-direction: column;
   flex-shrink: 0;
@@ -25,11 +24,4 @@ export const Sidebar = styled.div<SidebarProps>`
   } */
 `;
 
-// export const SidebarButton = styled.button`
-//    position: fixed;
-//    top: 1rem;
-//    left: 1rem;
-//    z-index: 1001;
-//    display: block; // or use a styled-component with media queries
-// `;
 

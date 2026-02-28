@@ -1,6 +1,7 @@
 // Navigation component exports
 export { Sidebar } from './Sidebar';
-export { SidebarTitle } from './SidebarTitle'; 
+export { SidebarTitle } from './SidebarTitle';
+export { SidebarButton, SidebarButtonContainer } from './SidebarButton';
 export { SidebarControls } from './SidebarControls';
 export { SidebarWelcomeMessage } from './SidebarWelcomeMessage';
 export { StyledNav } from './StyledNav';

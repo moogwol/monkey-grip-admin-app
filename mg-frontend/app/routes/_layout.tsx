@@ -23,6 +23,8 @@ import {
     Sidebar,
     SidebarTitle,
     SidebarControls,
+    SidebarButton,
+    SidebarButtonContainer,
     SidebarWelcomeMessage,
     SearchSpinner,
     StyledNav,
@@ -106,9 +108,6 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
     }, [q]);
 
 
-    const handleSidebarToggle = () => {
-        setSidebarOpen((prev) => !prev);
-    };
 
     return (
         <>
@@ -127,17 +126,20 @@ export default function SidebarLayout({ loaderData }: Route.ComponentProps) {
                     ☰
                 </button>
             )}
+            {sidebarOpen && (
+                <SidebarButton onClick={() => setSidebarOpen(false)} aria-label="Close sidebar">X</SidebarButton>
+            )}
             <Sidebar open={sidebarOpen}>
-                <button onClick={() => setSidebarOpen(false)}>Close sidebar</button>
+                {/* <button onClick={() => setSidebarOpen(false)}>Close sidebar</button> */}
                 <SidebarTitle>
                     <Link to="/">Monkey Grip Admin</Link>
                 </SidebarTitle>
                 <SidebarWelcomeMessage>
-                    Logged in as {currentUser?.full_name}
+                    Logged in as: {currentUser?.full_name}
+                    <LogoutButtonContainer as="Form" method="post" action="/logout">
+                        <LogoutButton type="submit">Logout</LogoutButton>
+                    </LogoutButtonContainer>
                 </SidebarWelcomeMessage>
-                <LogoutButtonContainer as="Form" method="post" action="/logout">
-                    <LogoutButton type="submit">Logout</LogoutButton>
-                </LogoutButtonContainer>
                 <SidebarControls>
                     <Form
                         id="search-form"
