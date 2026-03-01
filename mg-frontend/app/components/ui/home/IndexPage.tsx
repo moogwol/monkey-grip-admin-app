@@ -3,15 +3,17 @@ import styled from "styled-components";
 export const IndexPageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
 `;
 
 export const IndexPageHeader = styled.header`
   text-align: center;
   padding: 2rem 0;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 0;    
+  }
 `;
 
 export const IndexPageTitle = styled.h1`
@@ -27,7 +29,7 @@ export const IndexPageTitle = styled.h1`
   @media (max-width: 768px) {
     font-size: 2.5rem;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0rem;
   }
 `;
 

@@ -4,8 +4,16 @@ export const StatsSection = styled.section`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 16px;
   padding: 2rem;
+  margin: 2rem;
   color: white;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    /* width: calc(100% - 4px); */
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: -1rem;
+  }
 `;
 
 export const StatsSectionTitle = styled.h2`

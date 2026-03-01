@@ -39,20 +39,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   
 
   return (
-    <IndexPageContainer>
-      <IndexPageHeader>
-        <IndexPageTitle>
-          <IndexPageLogo src="/mg_logo_vectorised.svg" alt="MG Logo" />
+    <IndexPageContainer className="index-page-container">
+      <IndexPageHeader className="index-page-header">
+        <IndexPageTitle className="index-page-title">
+          <IndexPageLogo src="/mg_logo_vectorised.svg" alt="MG Logo" className="index-page-logo"/>
           Monkey Grip Admin
         </IndexPageTitle>
-        <IndexPageSubtitle>
-          Welcome to the BJJ Club Management System. Select a member from the sidebar to view their details,
-          or click "New Member" to add a new member to the club.
-        </IndexPageSubtitle>
+        {/* <IndexPageSubtitle>Welcome back! Here's an overview of your club's performance.</IndexPageSubtitle> */}
       </IndexPageHeader>
 
       {stats && (
-        <StatsSection>
+        <StatsSection className="stats-section">
           <StatsSectionTitle>Club Statistics</StatsSectionTitle>
           <StatsGrid>
             <StatCard>
@@ -96,7 +93,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </StatsSection>
       )}
 
-      <QuickActionsSection>
+      {/* <QuickActionsSection>
         <QuickActionsTitle>Quick Actions</QuickActionsTitle>
         <QuickActionsList>
           <QuickActionItem>
@@ -115,7 +112,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </QuickActionButton>
           </QuickActionItem>
         </QuickActionsList>
-      </QuickActionsSection>
+      </QuickActionsSection> */}
     </IndexPageContainer>
   );
 }

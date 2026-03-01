@@ -13,7 +13,7 @@ export const MemberProfile = styled.div`
 `;
 
 export const MemberContent = styled.div`
-  display: flex;
+  display: flex;    
   flex-direction: column;
   // border: 1px solid #e3e3e3;
   padding: 2px;
