@@ -16,6 +16,6 @@ fi
 
 curl -fsSL -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -d "{\"username\":\"$username\",\"password\":\"$password\",\"email\":\"$email\",\"full_name\":\"$full_name\"}" | json .
+  -d "{\"username\":\"$username\",\"password\":\"$password\",\"email\":\"$email\",\"full_name\":\"$full_name\"}" -v | json .
 
 
