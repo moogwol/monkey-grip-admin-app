@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { STATUS_COLOURS } from "../statusColours";
 
 export const MemberDetails = styled.div`
   display: flex;
@@ -34,11 +35,15 @@ export const PaymentStatusBadge = styled.div<{ $status: string }>`
     const status = (props.$status || '').toLowerCase();
     switch (status) {
       case 'overdue':
-        return '#ff0707ff';
-      case 'coupon package':
-        return '#ffc107';
+        return STATUS_COLOURS.danger;
+      case 'bono estandar':
+        return STATUS_COLOURS.warning;
+      case 'bono anterior':
+        return STATUS_COLOURS.secondary;
+      case 'bono policial':
+        return STATUS_COLOURS.primary;
       default:
-        return '#28a745';
+        return STATUS_COLOURS.success;
     }
   }};
   
