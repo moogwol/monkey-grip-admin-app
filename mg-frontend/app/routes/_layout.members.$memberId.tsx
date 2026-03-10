@@ -19,6 +19,9 @@ import {
   PaymentStatusButton,
   CouponActions,
   CouponInfo,
+  PaymentsSection,
+  PaymentCardList,
+  PaymentItemCard,
 } from "../components";
 
 // Icons
@@ -62,7 +65,11 @@ export default function Member({ loaderData }: Route.ComponentProps) {
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const getActiveCoupons = () => {
@@ -207,26 +214,26 @@ export default function Member({ loaderData }: Route.ComponentProps) {
           </PaymentStatusForm>
         </PaymentStatusSelector>
 
-        <div className="payments-section">
+        <PaymentsSection>
           <h3>Payments</h3>
           {Array.isArray(payments) && payments.length > 0 ? (
-            <ul>
+            <PaymentCardList>
               {payments.map((payment: any) => (
-                <li key={payment.id} className="payment-item">
+                <PaymentItemCard key={payment.id}>
                   <strong>{payment.plan_name || 'Unassigned Plan'}</strong>
                   {payment.amount_paid !== null && payment.amount_paid !== undefined ? (
-                    <span> - €{payment.amount_paid}</span>
+                    <span>€{payment.amount_paid}</span>
                   ) : null}
                   {payment.payment_date ? (
-                    <span> ({formatDate(payment.payment_date)})</span>
+                    <span> {formatDate(payment.payment_date)}</span>
                   ) : null}
-                </li>
+                </PaymentItemCard>
               ))}
-            </ul>
+            </PaymentCardList>
           ) : (
             <p>No payments recorded yet.</p>
           )}
-        </div>
+        </PaymentsSection>
 
         <CouponsSection>
           <h3>Class Coupons</h3>
