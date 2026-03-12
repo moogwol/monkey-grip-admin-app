@@ -4,9 +4,9 @@ services:
     image: postgres:17
     restart: always
     environment:
-      POSTGRES_USER: bjjuser
-      POSTGRES_PASSWORD: bjjpass
-      POSTGRES_DB: bjj_club_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - ./mg-backend/00-init-users.sql:/docker-entrypoint-initdb.d/00-init-users.sql:ro
       - ./mg-backend/01-init-members.sql:/docker-entrypoint-initdb.d/01-init-members.sql:ro
@@ -17,7 +17,9 @@ services:
       - ./mg-backend/06-seed-data.sql:/docker-entrypoint-initdb.d/06-seed-data.sql:ro
       - ./mg-backend/07-enforce-single-coupon-per-member.sql:/docker-entrypoint-initdb.d/07-enforce-single-coupon-per-member.sql:ro
     ports:
-      - "5432:5432"  
+      - "5432:5432" 
+    env_file:
+      - .env   
 
   mg-api:
     build:
@@ -29,9 +31,9 @@ services:
       - NODE_ENV=development
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_NAME=bjj_club_db
-      - DB_USER=bjjuser
-      - DB_PASSWORD=bjjpass
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
       - IMAGE_STORAGE_PATH=/data/images
     volumes:
       - ./mg-api:/app
@@ -39,6 +41,8 @@ services:
       - images-data:/data/images
     depends_on:
       - db
+    env_file:
+      - .env  
     command: ["npm", "run", "dev"]
 
   mg-frontend:
